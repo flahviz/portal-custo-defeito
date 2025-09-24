@@ -1,0 +1,21 @@
+stages:
+  - lint
+  - audit
+  - outdated
+  - build
+
+variables:
+  BUN_VERSION: "1.2"
+
+include:
+  - component: $CI_SERVER_FQDN/orbyon/components/bun/build@1
+    inputs:
+      job_name: "build_app"
+      job_stage: "build"
+      job_cache:
+        - key: ${CI_COMMIT_REF_SLUG}-bun-deps
+          policy: pull
+          paths:
+            - node_modules/
+      bun_run_install: true
+      bun_version: $BUN_VERSION

@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: portal-custo-defeito
+  description: Plataforma executiva para análise do impacto financeiro de defeitos
+  annotations:
+    gitlab.com/project-id: '74688065'
+    softplan.com.br/pipeline: 'false'
+    softplan.com.br/coderepo: 'true'
+    softplan.com.br/coderepo-permissions: read
+  links:
+    - url: https://custo-defeito.softplan.com.br/
+      title: Portal
+      icon: dashboard
+spec:
+  type: website
+  owner: Procuradorias
+  lifecycle: production
