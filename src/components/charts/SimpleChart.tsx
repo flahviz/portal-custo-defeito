@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   LineChart,
-  Line
+  Line,
 } from 'recharts';
 
 interface SimpleTooltipProps {
@@ -22,11 +22,11 @@ interface SimpleTooltipProps {
   formatter?: (value: number) => string;
 }
 
-const SimpleTooltip: React.FC<SimpleTooltipProps> = ({ 
-  active, 
-  payload, 
+const SimpleTooltip: React.FC<SimpleTooltipProps> = ({
+  active,
+  payload,
   label,
-  formatter = (value) => value.toString()
+  formatter = value => value.toString(),
 }) => {
   if (active && payload && payload.length) {
     return (
@@ -44,4 +44,14 @@ const SimpleTooltip: React.FC<SimpleTooltipProps> = ({
 };
 
 export { SimpleTooltip };
-export { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line, Tooltip };
+export {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Tooltip,
+};

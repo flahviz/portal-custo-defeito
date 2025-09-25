@@ -19,27 +19,27 @@ All colors MUST be HSL.
 
     --primary: 213 89% 42%;
     --primary-foreground: 0 0% 98%;
-    
+
     --primary-light: 213 89% 55%;
     --primary-dark: 213 89% 32%;
-    
+
     --executive: 213 89% 42%;
     --executive-foreground: 0 0% 98%;
-    
+
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
-    
+
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    
+
     --danger: 0 84% 60%;
     --danger-foreground: 0 0% 98%;
-    
+
     --gradient-primary: linear-gradient(135deg, hsl(213 89% 42%), hsl(213 89% 55%));
     --gradient-executive: linear-gradient(135deg, hsl(213 89% 42%), hsl(213 89% 32%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(215 100% 99%));
     --gradient-hero: linear-gradient(135deg, hsl(213 89% 42%), hsl(213 89% 55%), hsl(213 89% 65%));
-    
+
     --shadow-elegant: 0 10px 30px -10px hsl(213 89% 42% / 0.2);
     --shadow-card: 0 4px 20px -4px hsl(213 89% 42% / 0.1);
     --shadow-glow: 0 0 40px hsl(213 89% 55% / 0.3);
@@ -91,27 +91,27 @@ All colors MUST be HSL.
 
     --primary: 213 89% 55%;
     --primary-foreground: 213 31% 8%;
-    
+
     --primary-light: 213 89% 65%;
     --primary-dark: 213 89% 42%;
-    
+
     --executive: 213 89% 55%;
     --executive-foreground: 213 31% 8%;
-    
+
     --success: 142 76% 46%;
     --success-foreground: 213 31% 8%;
-    
+
     --warning: 38 92% 60%;
     --warning-foreground: 213 31% 8%;
-    
+
     --danger: 0 84% 70%;
     --danger-foreground: 213 31% 8%;
-    
+
     --gradient-primary: linear-gradient(135deg, hsl(213 89% 55%), hsl(213 89% 65%));
     --gradient-executive: linear-gradient(135deg, hsl(213 89% 55%), hsl(213 89% 42%));
     --gradient-card: linear-gradient(135deg, hsl(213 31% 10%), hsl(213 31% 12%));
     --gradient-hero: linear-gradient(135deg, hsl(213 89% 55%), hsl(213 89% 65%), hsl(213 89% 75%));
-    
+
     --shadow-elegant: 0 10px 30px -10px hsl(213 89% 55% / 0.4);
     --shadow-card: 0 4px 20px -4px hsl(213 89% 55% / 0.2);
     --shadow-glow: 0 0 40px hsl(213 89% 65% / 0.5);

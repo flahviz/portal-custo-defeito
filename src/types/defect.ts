@@ -1,8 +1,8 @@
 export interface JobRole {
   id: string;
   name: string;
-  level: "junior" | "pleno" | "senior";
-  category: "desenvolvedor" | "qa" | "po" | "suporte";
+  level: 'junior' | 'pleno' | 'senior';
+  category: 'desenvolvedor' | 'qa' | 'po' | 'suporte';
   salarioMinimo: number;
   salarioMaximo: number;
   mediaMercado: number;
@@ -34,9 +34,9 @@ export interface Defect {
   id: string;
   titulo: string;
   horasTotais?: number;
-  severidade: "baixa" | "media" | "alta" | "critica";
-  percepcaoImpacto: "sem_impacto" | "irritacao_leve" | "frustracao" | "reputacional";
-  ambienteEncontrado: "desenvolvimento" | "teste" | "homologacao" | "producao";
+  severidade: 'baixa' | 'media' | 'alta' | 'critica';
+  percepcaoImpacto: 'sem_impacto' | 'irritacao_leve' | 'frustracao' | 'reputacional';
+  ambienteEncontrado: 'desenvolvimento' | 'teste' | 'homologacao' | 'producao';
   modulo: string;
   horasPorCargo: DefectHours[];
   custoTecnico: number;
@@ -44,7 +44,7 @@ export interface Defect {
   custoComImpacto: number;
   custoPorFase: {
     desenvolvimento: number;
-    teste: number;  
+    teste: number;
     homologacao: number;
     producao: number;
   };

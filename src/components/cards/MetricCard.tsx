@@ -23,7 +23,7 @@ export default function MetricCard({
   icon: Icon,
   trend,
   variant = 'default',
-  className
+  className,
 }: MetricCardProps) {
   const getVariantColors = () => {
     switch (variant) {
@@ -52,42 +52,45 @@ export default function MetricCard({
   };
 
   return (
-    <Card className={cn(
-      "p-6 shadow-card transition-all duration-200 hover:shadow-elegant",
-      getVariantColors(),
-      className
-    )}>
+    <Card
+      className={cn(
+        'p-6 shadow-card transition-all duration-200 hover:shadow-elegant',
+        getVariantColors(),
+        className
+      )}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-muted-foreground">
-            {title}
-          </p>
-          <p className="text-2xl font-bold text-foreground mt-1">
-            {value}
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {description}
-          </p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
           {trend && (
             <div className="flex items-center mt-2">
-              <span className={cn(
-                "text-xs font-medium",
-                trend.isPositive ? "text-success" : "text-danger"
-              )}>
-                {trend.isPositive ? "↗" : "↘"} {trend.value}
+              <span
+                className={cn(
+                  'text-xs font-medium',
+                  trend.isPositive ? 'text-success' : 'text-danger'
+                )}
+              >
+                {trend.isPositive ? '↗' : '↘'} {trend.value}
               </span>
             </div>
           )}
         </div>
         {Icon && (
-          <div className={cn(
-            "p-2 rounded-lg",
-            getIconColor(),
-            variant === 'default' ? 'bg-primary/10' : 
-            variant === 'success' ? 'bg-success/10' :
-            variant === 'warning' ? 'bg-warning/10' :
-            'bg-danger/10'
-          )}>
+          <div
+            className={cn(
+              'p-2 rounded-lg',
+              getIconColor(),
+              variant === 'default'
+                ? 'bg-primary/10'
+                : variant === 'success'
+                  ? 'bg-success/10'
+                  : variant === 'warning'
+                    ? 'bg-warning/10'
+                    : 'bg-danger/10'
+            )}
+          >
             <Icon className="h-5 w-5" />
           </div>
         )}
