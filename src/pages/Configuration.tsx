@@ -3,29 +3,26 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { defaultSystemConfig, calculateCostPerHour } from '@/lib/defaultData';
 import { formatCurrency } from '@/lib/defectCalculations';
 import { SystemConfig, JobRole } from '@/types/defect';
-import { 
-  Settings, 
-  Save, 
-  RotateCcw, 
-  Clock, 
+import {
+  Save,
+  RotateCcw,
+  Clock,
   Calendar,
   DollarSign,
   TrendingUp,
-  Users,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Configuration() {
   const { toast } = useToast();
   const [config, setConfig] = useLocalStorage<SystemConfig>('systemConfig', defaultSystemConfig);
-  
+
   // Local state for editing
   const [localConfig, setLocalConfig] = useState<SystemConfig>(config);
 
@@ -35,8 +32,8 @@ export default function Configuration() {
       ...prev,
       workSettings: {
         ...prev.workSettings,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -47,7 +44,7 @@ export default function Configuration() {
       jobRoles: prev.jobRoles.map(role => {
         if (role.id === roleId) {
           const updatedRole = { ...role, [field]: value };
-          
+
           // Recalculate cost per hour when salary changes
           if (field === 'salarioPraticado' || field === 'mediaMercado') {
             const salaryToUse = updatedRole.salarioPraticado || updatedRole.mediaMercado;
@@ -57,22 +54,25 @@ export default function Configuration() {
               prev.workSettings.diasPorMes
             );
           }
-          
+
           return updatedRole;
         }
         return role;
-      })
+      }),
     }));
   };
 
   // Update phase multipliers
-  const updatePhaseMultiplier = (phase: keyof typeof localConfig.phaseMultipliers, value: number) => {
+  const updatePhaseMultiplier = (
+    phase: keyof typeof localConfig.phaseMultipliers,
+    value: number
+  ) => {
     setLocalConfig(prev => ({
       ...prev,
       phaseMultipliers: {
         ...prev.phaseMultipliers,
-        [phase]: value
-      }
+        [phase]: value,
+      },
     }));
   };
 
@@ -87,16 +87,16 @@ export default function Configuration() {
           role.salarioPraticado || role.mediaMercado,
           localConfig.workSettings.horasPorDia,
           localConfig.workSettings.diasPorMes
-        )
-      }))
+        ),
+      })),
     };
 
     setConfig(updatedConfig);
     setLocalConfig(updatedConfig);
-    
+
     toast({
-      title: "Configurações salvas!",
-      description: "Todas as configurações foram atualizadas com sucesso.",
+      title: 'Configurações salvas!',
+      description: 'Todas as configurações foram atualizadas com sucesso.',
     });
   };
 
@@ -104,34 +104,49 @@ export default function Configuration() {
   const restoreDefaults = () => {
     setLocalConfig(defaultSystemConfig);
     toast({
-      title: "Configurações restauradas",
-      description: "Todas as configurações foram restauradas para os valores padrão.",
+      title: 'Configurações restauradas',
+      description: 'Todas as configurações foram restauradas para os valores padrão.',
     });
   };
 
-  const rolesByCategory = localConfig.jobRoles.reduce((acc, role) => {
-    if (!acc[role.category]) acc[role.category] = [];
-    acc[role.category].push(role);
-    return acc;
-  }, {} as Record<string, JobRole[]>);
+  const rolesByCategory = localConfig.jobRoles.reduce(
+    (acc, role) => {
+      if (!acc[role.category]) {
+        acc[role.category] = [];
+      }
+      acc[role.category].push(role);
+      return acc;
+    },
+    {} as Record<string, JobRole[]>
+  );
 
   const getCategoryTitle = (category: string) => {
     switch (category) {
-      case 'desenvolvedor': return 'Desenvolvedores';
-      case 'qa': return 'QAs';
-      case 'po': return 'Product Owners';
-      case 'suporte': return 'Suporte';
-      default: return category;
+      case 'desenvolvedor':
+        return 'Desenvolvedores';
+      case 'qa':
+        return 'QAs';
+      case 'po':
+        return 'Product Owners';
+      case 'suporte':
+        return 'Suporte';
+      default:
+        return category;
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'desenvolvedor': return '💻';
-      case 'qa': return '🧪';
-      case 'po': return '📋';
-      case 'suporte': return '🛠️';
-      default: return '👤';
+      case 'desenvolvedor':
+        return '💻';
+      case 'qa':
+        return '🧪';
+      case 'po':
+        return '📋';
+      case 'suporte':
+        return '🛠️';
+      default:
+        return '👤';
     }
   };
 
@@ -163,7 +178,7 @@ export default function Configuration() {
               min="1"
               max="24"
               value={localConfig.workSettings.horasPorDia}
-              onChange={(e) => updateWorkSettings('horasPorDia', parseInt(e.target.value) || 8)}
+              onChange={e => updateWorkSettings('horasPorDia', parseInt(e.target.value) || 8)}
               className="mt-1"
             />
           </div>
@@ -178,7 +193,7 @@ export default function Configuration() {
               min="1"
               max="31"
               value={localConfig.workSettings.diasPorMes}
-              onChange={(e) => updateWorkSettings('diasPorMes', parseInt(e.target.value) || 22)}
+              onChange={e => updateWorkSettings('diasPorMes', parseInt(e.target.value) || 22)}
               className="mt-1"
             />
           </div>
@@ -191,7 +206,7 @@ export default function Configuration() {
           <DollarSign className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Faixas Salariais (Base de Mercado - 2024)</h2>
         </div>
-        
+
         <div className="space-y-8">
           {Object.entries(rolesByCategory).map(([category, roles]) => (
             <div key={category}>
@@ -199,7 +214,7 @@ export default function Configuration() {
                 <span className="text-xl">{getCategoryIcon(category)}</span>
                 <h3 className="text-lg font-medium">{getCategoryTitle(category)}</h3>
               </div>
-              
+
               <div className="space-y-4">
                 {roles.map(role => (
                   <Card key={role.id} className="p-4 bg-muted/20">
@@ -213,14 +228,16 @@ export default function Configuration() {
                         {formatCurrency(role.custoHora)}/hora
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Salário Mínimo</Label>
                         <Input
                           type="number"
                           value={role.salarioMinimo}
-                          onChange={(e) => updateJobRole(role.id, 'salarioMinimo', parseInt(e.target.value) || 0)}
+                          onChange={e =>
+                            updateJobRole(role.id, 'salarioMinimo', parseInt(e.target.value) || 0)
+                          }
                           className="text-sm"
                         />
                       </div>
@@ -229,7 +246,9 @@ export default function Configuration() {
                         <Input
                           type="number"
                           value={role.salarioMaximo}
-                          onChange={(e) => updateJobRole(role.id, 'salarioMaximo', parseInt(e.target.value) || 0)}
+                          onChange={e =>
+                            updateJobRole(role.id, 'salarioMaximo', parseInt(e.target.value) || 0)
+                          }
                           className="text-sm"
                         />
                       </div>
@@ -238,7 +257,9 @@ export default function Configuration() {
                         <Input
                           type="number"
                           value={role.mediaMercado}
-                          onChange={(e) => updateJobRole(role.id, 'mediaMercado', parseInt(e.target.value) || 0)}
+                          onChange={e =>
+                            updateJobRole(role.id, 'mediaMercado', parseInt(e.target.value) || 0)
+                          }
                           className="text-sm"
                         />
                       </div>
@@ -248,7 +269,13 @@ export default function Configuration() {
                           type="number"
                           placeholder="Opcional"
                           value={role.salarioPraticado || ''}
-                          onChange={(e) => updateJobRole(role.id, 'salarioPraticado', e.target.value ? parseInt(e.target.value) : undefined)}
+                          onChange={e =>
+                            updateJobRole(
+                              role.id,
+                              'salarioPraticado',
+                              e.target.value ? parseInt(e.target.value) : undefined
+                            )
+                          }
                           className="text-sm"
                         />
                       </div>
@@ -276,7 +303,7 @@ export default function Configuration() {
         <p className="text-sm text-muted-foreground mb-6">
           Baseado em estudos da indústria de software (fonte: IBM Systems Sciences Institute)
         </p>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 rounded-lg bg-success/10">
             <div className="text-2xl font-bold text-success mb-2">
@@ -288,11 +315,13 @@ export default function Configuration() {
               min="0.1"
               step="0.1"
               value={localConfig.phaseMultipliers.desenvolvimento}
-              onChange={(e) => updatePhaseMultiplier('desenvolvimento', parseFloat(e.target.value) || 1)}
+              onChange={e =>
+                updatePhaseMultiplier('desenvolvimento', parseFloat(e.target.value) || 1)
+              }
               className="mt-2 text-center"
             />
           </div>
-          
+
           <div className="text-center p-4 rounded-lg bg-warning/10">
             <div className="text-2xl font-bold text-warning mb-2">
               {localConfig.phaseMultipliers.teste}x
@@ -303,11 +332,11 @@ export default function Configuration() {
               min="0.1"
               step="0.1"
               value={localConfig.phaseMultipliers.teste}
-              onChange={(e) => updatePhaseMultiplier('teste', parseFloat(e.target.value) || 5)}
+              onChange={e => updatePhaseMultiplier('teste', parseFloat(e.target.value) || 5)}
               className="mt-2 text-center"
             />
           </div>
-          
+
           <div className="text-center p-4 rounded-lg bg-primary/10">
             <div className="text-2xl font-bold text-primary mb-2">
               {localConfig.phaseMultipliers.homologacao}x
@@ -318,11 +347,11 @@ export default function Configuration() {
               min="0.1"
               step="0.1"
               value={localConfig.phaseMultipliers.homologacao}
-              onChange={(e) => updatePhaseMultiplier('homologacao', parseFloat(e.target.value) || 10)}
+              onChange={e => updatePhaseMultiplier('homologacao', parseFloat(e.target.value) || 10)}
               className="mt-2 text-center"
             />
           </div>
-          
+
           <div className="text-center p-4 rounded-lg bg-danger/10">
             <div className="text-2xl font-bold text-danger mb-2">
               {localConfig.phaseMultipliers.producao}x
@@ -333,7 +362,7 @@ export default function Configuration() {
               min="0.1"
               step="0.1"
               value={localConfig.phaseMultipliers.producao}
-              onChange={(e) => updatePhaseMultiplier('producao', parseFloat(e.target.value) || 30)}
+              onChange={e => updatePhaseMultiplier('producao', parseFloat(e.target.value) || 30)}
               className="mt-2 text-center"
             />
           </div>
@@ -347,9 +376,17 @@ export default function Configuration() {
           <div>
             <h3 className="font-medium text-warning mb-2">Importante - Precedência de Salários</h3>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p><strong>Salário base usado:</strong> Se "Salário Praticado" estiver preenchido, ele será usado. Caso contrário, será usada a "Média Utilizada".</p>
-              <p><strong>Custo/hora:</strong> salario_base_usado ÷ (dias_mes × horas_dia)</p>
-              <p><strong>Recálculo automático:</strong> O custo por hora é recalculado automaticamente quando você altera qualquer valor salarial.</p>
+              <p>
+                <strong>Salário base usado:</strong> Se "Salário Praticado" estiver preenchido, ele
+                será usado. Caso contrário, será usada a "Média Utilizada".
+              </p>
+              <p>
+                <strong>Custo/hora:</strong> salario_base_usado ÷ (dias_mes × horas_dia)
+              </p>
+              <p>
+                <strong>Recálculo automático:</strong> O custo por hora é recalculado
+                automaticamente quando você altera qualquer valor salarial.
+              </p>
             </div>
           </div>
         </div>
@@ -357,17 +394,11 @@ export default function Configuration() {
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-end">
-        <Button
-          variant="outline"
-          onClick={restoreDefaults}
-        >
+        <Button variant="outline" onClick={restoreDefaults}>
           <RotateCcw className="h-4 w-4 mr-2" />
           Restaurar Padrões
         </Button>
-        <Button
-          onClick={saveConfiguration}
-          variant="executive"
-        >
+        <Button onClick={saveConfiguration} variant="executive">
           <Save className="h-4 w-4 mr-2" />
           Salvar Configurações
         </Button>

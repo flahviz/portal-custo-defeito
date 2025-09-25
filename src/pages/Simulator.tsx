@@ -4,7 +4,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -12,21 +18,20 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { defaultSystemConfig } from '@/lib/defaultData';
 import { calculateDefectCosts, formatCurrency } from '@/lib/defectCalculations';
 import { Defect, DefectHours, SystemConfig } from '@/types/defect';
-import { 
-  Calculator, 
-  Plus, 
-  Trash2, 
+import {
+  Calculator,
+  Plus,
+  Trash2,
   AlertTriangle,
   Settings,
   DollarSign,
-  TrendingUp,
-  Target
+  Target,
 } from 'lucide-react';
 export default function Simulator() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [config] = useLocalStorage<SystemConfig>('systemConfig', defaultSystemConfig);
-  const [defects, setDefects] = useLocalStorage<Defect[]>('defects', []);
+  const [_defects, setDefects] = useLocalStorage<Defect[]>('defects', []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,7 +40,7 @@ export default function Simulator() {
     severidade: '',
     percepcaoImpacto: '',
     ambienteEncontrado: '',
-    modulo: ''
+    modulo: '',
   });
 
   const [horasPorCargo, setHorasPorCargo] = useState<DefectHours[]>([]);
@@ -44,23 +49,29 @@ export default function Simulator() {
   // Add role hours
   const addRoleHours = (roleId: string) => {
     const role = config.jobRoles.find(r => r.id === roleId);
-    if (!role) return;
+    if (!role) {
+      return;
+    }
 
     const existing = horasPorCargo.find(h => h.roleId === roleId);
     if (existing) {
-      setHorasPorCargo(prev => 
-        prev.map(h => h.roleId === roleId ? { ...h, hours: h.hours + 1 } : h)
+      setHorasPorCargo(prev =>
+        prev.map(h => (h.roleId === roleId ? { ...h, hours: h.hours + 1 } : h))
       );
     } else {
-      setHorasPorCargo(prev => [...prev, {
-        roleId: role.id,
-        roleName: role.name,
-        roleLevel: role.level,
-        hours: 1,
-        custoHora: role.salarioPraticado 
-          ? (role.salarioPraticado / (config.workSettings.horasPorDia * config.workSettings.diasPorMes))
-          : role.custoHora
-      }]);
+      setHorasPorCargo(prev => [
+        ...prev,
+        {
+          roleId: role.id,
+          roleName: role.name,
+          roleLevel: role.level,
+          hours: 1,
+          custoHora: role.salarioPraticado
+            ? role.salarioPraticado /
+              (config.workSettings.horasPorDia * config.workSettings.diasPorMes)
+            : role.custoHora,
+        },
+      ]);
     }
   };
 
@@ -71,9 +82,7 @@ export default function Simulator() {
 
   // Update role hours
   const updateRoleHours = (roleId: string, hours: number) => {
-    setHorasPorCargo(prev => 
-      prev.map(h => h.roleId === roleId ? { ...h, hours } : h)
-    );
+    setHorasPorCargo(prev => prev.map(h => (h.roleId === roleId ? { ...h, hours } : h)));
   };
 
   // Calculate cost simulation
@@ -81,18 +90,18 @@ export default function Simulator() {
     // Validation
     if (!formData.titulo || !formData.percepcaoImpacto) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha título e percepção de impacto.",
-        variant: "destructive"
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha título e percepção de impacto.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (horasPorCargo.length === 0) {
       toast({
-        title: "Horas por cargo obrigatório",
-        description: "Adicione pelo menos um cargo com suas respectivas horas.",
-        variant: "destructive"
+        title: 'Horas por cargo obrigatório',
+        description: 'Adicione pelo menos um cargo com suas respectivas horas.',
+        variant: 'destructive',
       });
       return;
     }
@@ -100,11 +109,11 @@ export default function Simulator() {
     const defectData = {
       titulo: formData.titulo,
       horasTotais: formData.horasTotais ? parseInt(formData.horasTotais) : undefined,
-      severidade: formData.severidade as any || 'media',
+      severidade: (formData.severidade as any) || 'media',
       percepcaoImpacto: formData.percepcaoImpacto as any,
       ambienteEncontrado: 'producao' as any, // Sempre produção
       modulo: formData.modulo,
-      horasPorCargo
+      horasPorCargo,
     };
 
     const results = calculateDefectCosts(
@@ -118,19 +127,21 @@ export default function Simulator() {
 
   // Save defect
   const saveDefect = () => {
-    if (!calculatedResults) return;
+    if (!calculatedResults) {
+      return;
+    }
 
     const newDefect: Defect = {
       id: Date.now().toString(),
       ...calculatedResults,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     setDefects(prev => [...prev, newDefect]);
-    
+
     toast({
-      title: "Defeito salvo com sucesso!",
-      description: "Redirecionando para o dashboard para visualizar os resultados...",
+      title: 'Defeito salvo com sucesso!',
+      description: 'Redirecionando para o dashboard para visualizar os resultados...',
     });
 
     navigate('/dashboard');
@@ -142,35 +153,50 @@ export default function Simulator() {
       severidade: '',
       percepcaoImpacto: '',
       ambienteEncontrado: '',
-      modulo: ''
+      modulo: '',
     });
     setHorasPorCargo([]);
     setCalculatedResults(null);
   };
 
-  const rolesByCategory = config.jobRoles.reduce((acc, role) => {
-    if (!acc[role.category]) acc[role.category] = [];
-    acc[role.category].push(role);
-    return acc;
-  }, {} as Record<string, typeof config.jobRoles>);
+  const rolesByCategory = config.jobRoles.reduce(
+    (acc, role) => {
+      if (!acc[role.category]) {
+        acc[role.category] = [];
+      }
+      acc[role.category].push(role);
+      return acc;
+    },
+    {} as Record<string, typeof config.jobRoles>
+  );
 
   const getImpactLabel = (key: string) => {
     switch (key) {
-      case 'sem_impacto': return 'Sem impacto (0x)';
-      case 'irritacao_leve': return 'Irritação leve (1.1x)';
-      case 'frustracao': return 'Frustração (1.2x)';
-      case 'reputacional': return 'Reputacional (1.3x)';
-      default: return key;
+      case 'sem_impacto':
+        return 'Sem impacto (0x)';
+      case 'irritacao_leve':
+        return 'Irritação leve (1.1x)';
+      case 'frustracao':
+        return 'Frustração (1.2x)';
+      case 'reputacional':
+        return 'Reputacional (1.3x)';
+      default:
+        return key;
     }
   };
 
   const getEnvironmentLabel = (key: string) => {
     switch (key) {
-      case 'desenvolvimento': return 'Desenvolvimento (1x)';
-      case 'teste': return 'Teste (5x)';
-      case 'homologacao': return 'Homologação (10x)';
-      case 'producao': return 'Produção (30x)';
-      default: return key;
+      case 'desenvolvimento':
+        return 'Desenvolvimento (1x)';
+      case 'teste':
+        return 'Teste (5x)';
+      case 'homologacao':
+        return 'Homologação (10x)';
+      case 'producao':
+        return 'Produção (30x)';
+      default:
+        return key;
     }
   };
 
@@ -197,7 +223,7 @@ export default function Simulator() {
                   id="titulo"
                   placeholder="Ex: Bug no login de usuários"
                   value={formData.titulo}
-                  onChange={(e) => setFormData(prev => ({ ...prev, titulo: e.target.value }))}
+                  onChange={e => setFormData(prev => ({ ...prev, titulo: e.target.value }))}
                 />
               </div>
 
@@ -209,7 +235,7 @@ export default function Simulator() {
                     type="number"
                     placeholder="Ex: 40"
                     value={formData.horasTotais}
-                    onChange={(e) => setFormData(prev => ({ ...prev, horasTotais: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, horasTotais: e.target.value }))}
                   />
                 </div>
                 <div>
@@ -218,7 +244,7 @@ export default function Simulator() {
                     id="modulo"
                     placeholder="Ex: Módulo de Pagamentos"
                     value={formData.modulo}
-                    onChange={(e) => setFormData(prev => ({ ...prev, modulo: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, modulo: e.target.value }))}
                   />
                 </div>
               </div>
@@ -226,7 +252,10 @@ export default function Simulator() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="severidade">Severidade</Label>
-                  <Select value={formData.severidade} onValueChange={(value) => setFormData(prev => ({ ...prev, severidade: value }))}>
+                  <Select
+                    value={formData.severidade}
+                    onValueChange={value => setFormData(prev => ({ ...prev, severidade: value }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a severidade" />
                     </SelectTrigger>
@@ -240,7 +269,12 @@ export default function Simulator() {
                 </div>
                 <div>
                   <Label htmlFor="percepcaoImpacto">Percepção de Impacto *</Label>
-                  <Select value={formData.percepcaoImpacto} onValueChange={(value) => setFormData(prev => ({ ...prev, percepcaoImpacto: value }))}>
+                  <Select
+                    value={formData.percepcaoImpacto}
+                    onValueChange={value =>
+                      setFormData(prev => ({ ...prev, percepcaoImpacto: value }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o impacto" />
                     </SelectTrigger>
@@ -261,7 +295,7 @@ export default function Simulator() {
           {/* Role Hours */}
           <Card className="p-6 shadow-card">
             <h2 className="text-xl font-semibold mb-4">Especificar horas por cargo</h2>
-            
+
             {/* Add roles */}
             <div className="space-y-4 mb-6">
               {Object.entries(rolesByCategory).map(([category, roles]) => (
@@ -296,7 +330,10 @@ export default function Simulator() {
                 </p>
               ) : (
                 horasPorCargo.map(roleHour => (
-                  <div key={roleHour.roleId} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={roleHour.roleId}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <Badge variant="outline" className="capitalize">
                         {roleHour.roleName} {roleHour.roleLevel}
@@ -311,7 +348,7 @@ export default function Simulator() {
                         min="0"
                         placeholder=""
                         value={roleHour.hours === 0 ? '' : roleHour.hours.toString()}
-                        onChange={(e) => {
+                        onChange={e => {
                           const value = e.target.value;
                           if (value === '' || /^\d+$/.test(value)) {
                             updateRoleHours(roleHour.roleId, value === '' ? 0 : parseInt(value));
@@ -335,11 +372,7 @@ export default function Simulator() {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <Button 
-              onClick={simulateDefect}
-              className="flex-1"
-              variant="executive"
-            >
+            <Button onClick={simulateDefect} className="flex-1" variant="executive">
               <Calculator className="h-4 w-4 mr-2" />
               Simular Custo do Defeito
             </Button>
@@ -357,12 +390,16 @@ export default function Simulator() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 rounded-lg bg-primary/10">
                       <DollarSign className="h-6 w-6 text-primary mx-auto mb-2" />
-                      <div className="text-lg font-bold">{formatCurrency(calculatedResults.custoPago)}</div>
+                      <div className="text-lg font-bold">
+                        {formatCurrency(calculatedResults.custoPago)}
+                      </div>
                       <div className="text-sm text-muted-foreground">Custo Técnico</div>
                     </div>
                     <div className="text-center p-4 rounded-lg bg-warning/10">
                       <AlertTriangle className="h-6 w-6 text-warning mx-auto mb-2" />
-                      <div className="text-lg font-bold">{formatCurrency(calculatedResults.custoComImpacto)}</div>
+                      <div className="text-lg font-bold">
+                        {formatCurrency(calculatedResults.custoComImpacto)}
+                      </div>
                       <div className="text-sm text-muted-foreground">Com Impacto</div>
                     </div>
                   </div>
@@ -373,19 +410,27 @@ export default function Simulator() {
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="flex justify-between p-2 rounded bg-muted/50">
                         <span>Desenvolvimento:</span>
-                        <span className="font-medium">{formatCurrency(calculatedResults.custoPorFase.desenvolvimento)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(calculatedResults.custoPorFase.desenvolvimento)}
+                        </span>
                       </div>
                       <div className="flex justify-between p-2 rounded bg-muted/50">
                         <span>Teste:</span>
-                        <span className="font-medium">{formatCurrency(calculatedResults.custoPorFase.teste)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(calculatedResults.custoPorFase.teste)}
+                        </span>
                       </div>
                       <div className="flex justify-between p-2 rounded bg-muted/50">
                         <span>Homologação:</span>
-                        <span className="font-medium">{formatCurrency(calculatedResults.custoPorFase.homologacao)}</span>
+                        <span className="font-medium">
+                          {formatCurrency(calculatedResults.custoPorFase.homologacao)}
+                        </span>
                       </div>
                       <div className="flex justify-between p-2 rounded bg-danger/10">
                         <span>Produção:</span>
-                        <span className="font-medium text-danger">{formatCurrency(calculatedResults.custoPorFase.producao)}</span>
+                        <span className="font-medium text-danger">
+                          {formatCurrency(calculatedResults.custoPorFase.producao)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -406,16 +451,13 @@ export default function Simulator() {
                 <Separator className="my-4" />
 
                 <div className="flex gap-2">
-                    <Button onClick={saveDefect} variant="success" className="flex-1">
-                      <Target className="h-4 w-4 mr-2" />
-                      Salvar Defeito
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/dashboard')} 
-                      variant="outline"
-                    >
-                      Ver Dashboard
-                    </Button>
+                  <Button onClick={saveDefect} variant="success" className="flex-1">
+                    <Target className="h-4 w-4 mr-2" />
+                    Salvar Defeito
+                  </Button>
+                  <Button onClick={() => navigate('/dashboard')} variant="outline">
+                    Ver Dashboard
+                  </Button>
                 </div>
               </Card>
 
@@ -423,11 +465,26 @@ export default function Simulator() {
               <Card className="p-6 shadow-card">
                 <h3 className="text-lg font-semibold mb-4">Informações Detalhadas</h3>
                 <div className="space-y-3 text-sm">
-                  <div><strong>Título:</strong> {calculatedResults.titulo}</div>
-                  <div><strong>Ambiente:</strong> {getEnvironmentLabel(calculatedResults.ambienteEncontrado)}</div>
-                  <div><strong>Impacto:</strong> {getImpactLabel(calculatedResults.percepcaoImpacto)}</div>
-                  <div><strong>Módulo:</strong> {calculatedResults.modulo}</div>
-                  <div><strong>Total de Horas:</strong> {calculatedResults.horasPorCargo.reduce((sum: number, h: any) => sum + h.hours, 0)}</div>
+                  <div>
+                    <strong>Título:</strong> {calculatedResults.titulo}
+                  </div>
+                  <div>
+                    <strong>Ambiente:</strong>{' '}
+                    {getEnvironmentLabel(calculatedResults.ambienteEncontrado)}
+                  </div>
+                  <div>
+                    <strong>Impacto:</strong> {getImpactLabel(calculatedResults.percepcaoImpacto)}
+                  </div>
+                  <div>
+                    <strong>Módulo:</strong> {calculatedResults.modulo}
+                  </div>
+                  <div>
+                    <strong>Total de Horas:</strong>{' '}
+                    {calculatedResults.horasPorCargo.reduce(
+                      (sum: number, h: any) => sum + h.hours,
+                      0
+                    )}
+                  </div>
                 </div>
               </Card>
             </>
