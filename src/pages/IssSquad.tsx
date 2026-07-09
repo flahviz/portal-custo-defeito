@@ -292,8 +292,7 @@ export default function IssSquad() {
                   <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
                     <Info className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>
-                      Configuração automática disponível apenas em modo de desenvolvimento (<code>bun dev</code>).
-                      Configure o squad em <strong>.claude/squad-config.json</strong> e reinicie.
+                      Nenhum squad configurado. Acesse <strong>Configurações → Squads e Desenvolvedores</strong>, adicione seu squad e clique em <strong>Salvar configurações</strong>.
                     </span>
                   </div>
                 )}

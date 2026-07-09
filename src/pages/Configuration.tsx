@@ -8,6 +8,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { defaultSystemConfig, calculateCostPerHour } from '@/lib/defaultData';
 import { formatCurrency } from '@/lib/defectCalculations';
 import { SystemConfig, JobRole, SquadConfig, SquadDeveloper } from '@/types/defect';
+import { saveSquadConfigToStorage, SquadsConfig } from '@/lib/rtcService';
 import {
   Save,
   RotateCcw,
@@ -97,6 +98,20 @@ export default function Configuration() {
 
     setConfig(updatedConfig);
     setLocalConfig(updatedConfig);
+
+    // Sincroniza com a chave usada pelo ISS e Insights
+    const squadSync: SquadsConfig = {
+      squads: (updatedConfig.squads ?? []).map(s => ({
+        id: s.id,
+        name: s.name,
+        teamArea: s.teamArea,
+        horasMediaPorDefeito: s.horasMediaPorDefeito ?? 8,
+        developers: s.developers.map(d => ({ email: d.email, level: d.level, category: d.category })),
+      })),
+      jobRoles: updatedConfig.jobRoles.map(r => ({ id: r.id, name: r.name, level: r.level, category: r.category, custoHora: r.custoHora })),
+      workSettings: updatedConfig.workSettings,
+    };
+    saveSquadConfigToStorage(squadSync);
 
     toast({
       title: 'Configurações salvas!',
