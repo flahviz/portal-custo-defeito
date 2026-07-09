@@ -29,6 +29,8 @@ jobs:
 
       - name: Build
         run: bun run build
+        env:
+          VITE_MANAGER_CODE: ${{ secrets.VITE_MANAGER_CODE }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
