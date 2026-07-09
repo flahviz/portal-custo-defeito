@@ -1,0 +1,65 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: portal-custo-defeito
+  title: Portal Custo Defeito
+  description: Ferramenta executiva do Time de Qualidade da Vertical de Procuradorias para análise do impacto financeiro de defeitos de software
+  tags:
+    - react
+    - typescript
+    - vite
+    - tailwindcss
+    - quality-assurance
+    - cost-analysis
+    - innersource
+  annotations:
+    gitlab.com/project-id: '74688065'
+    gitlab.com/project-slug: 'softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito'
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/source-location: url:https://gitlab.com/softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito
+    softplan.com.br/pipeline: 'false'
+    softplan.com.br/coderepo: 'true'
+    softplan.com.br/coderepo-permissions: read
+    softplan.com.br/team: 'Time de Qualidade'
+    softplan.com.br/vertical: 'Procuradorias'
+  links:
+    - url: https://custo-defeito.softplan.com.br/
+      title: Portal Custo Defeito
+      icon: dashboard
+    - url: https://gitlab.com/softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito
+      title: Repositório GitLab
+      icon: code
+    - url: https://gitlab.com/softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito/-/blob/main/CONTRIBUTING.md
+      title: Guia de Contribuição
+      icon: help
+spec:
+  type: website
+  owner: group:procuradorias-qualidade
+  lifecycle: production
+  system: procuradorias-tools
+  dependsOn:
+    - resource:portal-custo-defeito-hosting
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: procuradorias-tools
+  title: Ferramentas da Vertical de Procuradorias
+  description: Conjunto de ferramentas desenvolvidas para apoiar os processos da Vertical de Procuradorias
+  tags:
+    - procuradorias
+    - tools
+    - quality
+spec:
+  owner: group:procuradorias-qualidade
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: portal-custo-defeito-hosting
+  title: Hospedagem Portal Custo Defeito
+  description: Infraestrutura de hospedagem para o Portal Custo Defeito
+spec:
+  type: hosting
+  owner: group:procuradorias-qualidade
+  system: procuradorias-tools
