@@ -23,10 +23,10 @@ const THRESHOLD_OPTIONS = [
 ];
 
 const TIPO_CONFIG: Record<ClusterTipo, { label: string; color: string; bg: string; border: string }> = {
-  regressao:   { label: 'Regressão',   color: 'text-red-700',    bg: 'bg-red-50',    border: 'border-red-200' },
-  recorrencia: { label: 'Recorrência', color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-200' },
-  duplicata:   { label: 'Duplicata',   color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-200' },
-  similar:     { label: 'Similar',     color: 'text-blue-700',   bg: 'bg-blue-50',   border: 'border-blue-200' },
+  regressao:   { label: 'Regressão',   color: 'text-red-400',    bg: 'bg-red-500/8',    border: 'border-red-500/25' },
+  recorrencia: { label: 'Recorrência', color: 'text-orange-400', bg: 'bg-orange-500/8', border: 'border-orange-500/25' },
+  duplicata:   { label: 'Duplicata',   color: 'text-yellow-400', bg: 'bg-yellow-500/8', border: 'border-yellow-500/25' },
+  similar:     { label: 'Similar',     color: 'text-blue-400',   bg: 'bg-blue-500/8',   border: 'border-blue-500/25' },
 };
 
 function TipoBadge({ tipo }: { tipo: ClusterTipo }) {
@@ -52,9 +52,9 @@ function SimBar({ value }: { value: number }) {
 }
 
 const STATUS_CONFIG = {
-  implementavel:        { label: 'Implementável',      icon: CheckCircle2, color: 'text-green-700',  bg: 'bg-green-50',  border: 'border-green-200' },
-  'requer-refatoracao': { label: 'Requer refatoração', icon: AlertCircle,  color: 'text-amber-700',  bg: 'bg-amber-50',  border: 'border-amber-200' },
-  'nao-testavel':       { label: 'Não testável',       icon: XCircle,      color: 'text-red-700',    bg: 'bg-red-50',    border: 'border-red-200'   },
+  implementavel:        { label: 'Implementável',      icon: CheckCircle2, color: 'text-green-400',  bg: 'bg-green-500/8',  border: 'border-green-500/25' },
+  'requer-refatoracao': { label: 'Requer refatoração', icon: AlertCircle,  color: 'text-amber-400',  bg: 'bg-amber-500/8',  border: 'border-amber-500/25' },
+  'nao-testavel':       { label: 'Não testável',       icon: XCircle,      color: 'text-red-400',    bg: 'bg-red-500/8',    border: 'border-red-500/25'   },
 } as const;
 
 function TestValidationCard({ tv }: { tv: TestValidation }) {
@@ -182,7 +182,7 @@ function ClusterIADialog({ cluster, open, onClose }: { cluster: ClusterDefeitos;
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 mt-3">
+          <div className="rounded-lg border border-red-500/25 bg-red-500/8 p-3 text-sm text-red-400 mt-3">
             {error}
           </div>
         )}
@@ -191,11 +191,11 @@ function ClusterIADialog({ cluster, open, onClose }: { cluster: ClusterDefeitos;
           <div className="pt-4 divide-y divide-border">
 
             {/* Categoria — sempre visível */}
-            <div className="flex items-center gap-3 rounded-lg bg-purple-50 border border-purple-200 p-4 mb-4">
-              <Shield className="h-5 w-5 text-purple-600 shrink-0" />
+            <div className="flex items-center gap-3 rounded-lg bg-violet-500/8 border border-violet-500/25 p-4 mb-4">
+              <Shield className="h-5 w-5 text-violet-400 shrink-0" />
               <div>
-                <p className="text-[11px] font-semibold text-purple-600 uppercase tracking-wider">Categoria do problema</p>
-                <p className="text-sm font-semibold text-purple-900 mt-0.5">{result.tipoProblema}</p>
+                <p className="text-[11px] font-semibold text-violet-400 uppercase tracking-wider">Categoria do problema</p>
+                <p className="text-sm font-semibold text-foreground mt-0.5">{result.tipoProblema}</p>
               </div>
             </div>
 
@@ -221,7 +221,7 @@ function ClusterIADialog({ cluster, open, onClose }: { cluster: ClusterDefeitos;
 
             <CollapsibleSection
               defaultOpen={true}
-              icon={<span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold shrink-0">3</span>}
+              icon={<span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/15 text-green-400 text-xs font-bold shrink-0">3</span>}
               title="Testes de regressão recomendados"
             >
               <div className="pl-7 pb-3 space-y-3">
@@ -315,11 +315,11 @@ function ClusterIADialog({ cluster, open, onClose }: { cluster: ClusterDefeitos;
             )}
 
             {/* Ação prioritária — sempre visível */}
-            <div className="flex items-start gap-3 rounded-lg bg-green-50 border border-green-200 p-4 mt-2">
-              <Lightbulb className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-lg bg-green-500/8 border border-green-500/25 p-4 mt-2">
+              <Lightbulb className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-[11px] font-semibold text-green-700 uppercase tracking-wider mb-1">Ação prioritária recomendada</p>
-                <p className="text-sm text-green-900 leading-relaxed">{result.acaoPrioritaria}</p>
+                <p className="text-[11px] font-semibold text-green-400 uppercase tracking-wider mb-1">Ação prioritária recomendada</p>
+                <p className="text-sm text-foreground leading-relaxed">{result.acaoPrioritaria}</p>
               </div>
             </div>
 
@@ -385,9 +385,9 @@ function ClusterCard({ cluster, index }: { cluster: ClusterDefeitos; index: numb
           </div>
         )}
 
-        <div className="bg-white/60 rounded p-2 border border-current/10">
+        <div className="bg-muted/40 rounded p-2 border border-border">
           <p className="text-xs font-semibold text-muted-foreground mb-0.5">Plano de ação</p>
-          <p className="text-sm">{cluster.planoDeAcao}</p>
+          <p className="text-sm text-foreground">{cluster.planoDeAcao}</p>
         </div>
 
         <div>
@@ -408,7 +408,7 @@ function ClusterCard({ cluster, index }: { cluster: ClusterDefeitos; index: numb
           {expandedCards && (
             <div className="mt-2 space-y-2">
               {cluster.defeitos.map((d) => (
-                <div key={d.id} className="rounded border border-current/10 bg-white/50 p-2 text-xs space-y-0.5">
+                <div key={d.id} className="rounded border border-border bg-muted/30 p-2 text-xs space-y-0.5">
                   <div className="flex items-start gap-1.5">
                     <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground shrink-0">
                       #{d.id}
