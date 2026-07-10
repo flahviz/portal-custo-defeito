@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSessionState } from '@/lib/useSessionState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -458,13 +459,13 @@ function SummaryBar({ clusters, total }: { clusters: ClusterDefeitos[]; total: n
 
 export default function RecorrentesPage() {
   const { config, loading: configLoading } = useSquadConfig();
-  const [squadId, setSquadId] = useState('');
-  const [months, setMonths] = useState(6);
-  const [threshold, setThreshold] = useState(0.20);
+  const [squadId, setSquadId] = useSessionState('rec_squadId', '');
+  const [months, setMonths] = useSessionState('rec_months', 6);
+  const [threshold, setThreshold] = useSessionState('rec_threshold', 0.20);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clusters, setClusters] = useState<ClusterDefeitos[] | null>(null);
-  const [meta, setMeta] = useState<{ total: number; startDate: string; squadName: string } | null>(null);
+  const [clusters, setClusters] = useSessionState<ClusterDefeitos[] | null>('rec_clusters', null);
+  const [meta, setMeta] = useSessionState<{ total: number; startDate: string; squadName: string } | null>('rec_meta', null);
   const [rawItems, setRawItems] = useState<Parameters<typeof analisarRecorrencias>[0] | null>(null);
 
   async function handleAnalyze() {

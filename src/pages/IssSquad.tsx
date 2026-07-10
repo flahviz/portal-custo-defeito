@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useSessionState } from '@/lib/useSessionState';
 import { issCache } from '@/lib/dashboardCache';
 import {
   Activity, GitBranch, RefreshCw, AlertCircle, ChevronDown, ChevronUp,
@@ -96,28 +97,28 @@ export default function IssSquad() {
   const [configLoading, setConfigLoading] = useState(true);
 
   // Selected squad
-  const [selectedSquadId, setSelectedSquadId] = useState('');
+  const [selectedSquadId, setSelectedSquadId] = useSessionState('iss_squadId', '');
 
   // Period
-  const [startMonth, setStartMonth] = useState(0);          // Janeiro
-  const [startYear, setStartYear] = useState(now.getFullYear());
-  const [endMonth, setEndMonth] = useState(now.getMonth());
-  const [endYear, setEndYear] = useState(now.getFullYear());
+  const [startMonth, setStartMonth] = useSessionState('iss_startMonth', 0);
+  const [startYear, setStartYear] = useSessionState('iss_startYear', now.getFullYear());
+  const [endMonth, setEndMonth] = useSessionState('iss_endMonth', now.getMonth());
+  const [endYear, setEndYear] = useSessionState('iss_endYear', now.getFullYear());
 
   // RTC defect counts per developer (editable)
-  const [defectCounts, setDefectCounts] = useState<Record<string, number>>({});
+  const [defectCounts, setDefectCounts] = useSessionState<Record<string, number>>('iss_defectCounts', {});
   const [rtcFetching, setRtcFetching] = useState(false);
   const [rtcError, setRtcError] = useState<string | null>(null);
-  const [rtcResult, setRtcResult] = useState<DefectsResponse | null>(null);
+  const [rtcResult, setRtcResult] = useSessionState<DefectsResponse | null>('iss_rtcResult', null);
   const [expandedDev, setExpandedDev] = useState<string | null>(null);
 
   // GitLab
-  const [gitlabToken, setGitlabToken] = useState('');
+  const [gitlabToken, setGitlabToken] = useSessionState('iss_gitlabToken', '');
   const [showGitlabConfig, setShowGitlabConfig] = useState(false);
-  const [allReleases, setAllReleases] = useState<ReleaseInfo[]>([]);
+  const [allReleases, setAllReleases] = useSessionState<ReleaseInfo[]>('iss_allReleases', []);
   const [tagsLoading, setTagsLoading] = useState(false);
   const [tagsError, setTagsError] = useState<string | null>(null);
-  const [manualDeploys, setManualDeploys] = useState('');
+  const [manualDeploys, setManualDeploys] = useSessionState('iss_manualDeploys', '');
 
   // Load squad config on mount
   useEffect(() => {

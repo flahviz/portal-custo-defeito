@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSessionState } from '@/lib/useSessionState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -682,11 +683,11 @@ function IssuesPanel() {
 
 export default function InsightsPage() {
   const { config, loading: configLoading } = useSquadConfig();
-  const [squadId, setSquadId] = useState('');
-  const [months, setMonths] = useState(6);
+  const [squadId, setSquadId] = useSessionState('ins_squadId', '');
+  const [months, setMonths] = useSessionState('ins_months', 6);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<InsightsData | null>(null);
+  const [data, setData] = useSessionState<InsightsData | null>('ins_data', null);
 
   async function handleFetch() {
     if (!squadId) return;
