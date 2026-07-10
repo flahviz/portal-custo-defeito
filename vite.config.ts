@@ -834,6 +834,85 @@ Baseie sua avaliação no código Delphi real. Se o código não for suficiente 
           return;
         }
 
+        // POST /api/claude/analyze-defect-full — análise completa com contexto real do código
+        if (url === "/api/claude/analyze-defect-full" && req.method === "POST") {
+          try {
+            const body = await readBody(req);
+            const payload = JSON.parse(body) as {
+              card: Record<string, unknown>;
+              mr: { iid: number; title: string; webUrl: string; changedFiles: string[]; diffsContext: string } | null;
+              testFiles: { path: string; content: string }[];
+            };
+            const { card, mr, testFiles } = payload;
+
+            const mrInfo = mr
+              ? `MR !${mr.iid}: "${mr.title}"\nArquivos alterados:\n${mr.changedFiles.map((f: string) => '- ' + f).join('\n')}\n\nDiff da correção:\n${mr.diffsContext}`
+              : 'Nenhum MR de correção encontrado para este defeito no GitLab.';
+
+            const testContext = testFiles.length > 0
+              ? testFiles.map((tf: { path: string; content: string }) => `=== ${tf.path} ===\n${tf.content}`).join('\n\n')
+              : 'Nenhum arquivo de teste encontrado nos diretórios dos arquivos alterados.';
+
+            const prompt = `Você é um especialista em qualidade de software para sistemas Delphi/Pascal (DUnit/DUnitX). Analise este defeito com base no contexto real do código-fonte e responda em JSON.
+
+DEFEITO RTC #${card.id}:
+Título: ${card.title}
+Funcionalidade: ${card.funcionalidade || 'não informado'}
+Versão de origem: ${card.versaoOrigem || 'não informada'}
+Causa descrita pelo dev: ${card.causa || 'não preenchido'}
+Solução aplicada: ${card.solucao || 'não preenchida'}
+${card.description ? `Descrição: ${String(card.description).replace(/<[^>]+>/g, ' ').trim().slice(0, 600)}` : ''}
+
+CORREÇÃO NO GITLAB:
+${mrInfo}
+
+ARQUIVOS DE TESTE EXISTENTES NO REPOSITÓRIO:
+${testContext}
+
+Responda SOMENTE com JSON válido:
+{
+  "causaRaiz": "análise da causa raiz (2-3 parágrafos baseados no que o dev descreveu e nos arquivos alterados)",
+  "cenarios": [
+    {
+      "descricao": "descrição objetiva do cenário de teste",
+      "status": "implementavel|ja-existe|requer-refatoracao|requer-isolamento",
+      "motivo": "1-2 frases baseadas no código real. Se 'ja-existe': cite arquivo e procedure exatos. Se 'requer-refatoracao': o que refatorar. Se 'requer-isolamento': qual dependência externa.",
+      "arquivo": "caminho/do/arquivo/teste.pas ou null",
+      "codigoExemplo": "código DUnitX concreto ou null"
+    }
+  ],
+  "comoEvitar": ["prática concreta 1", "prática 2", "prática 3"],
+  "checklistReview": ["ponto de revisão 1", "ponto 2", "ponto 3", "ponto 4"]
+}
+
+CLASSIFICAÇÃO OBRIGATÓRIA:
+- "implementavel": código existente suporta o teste sem modificações. Forneça arquivo e código referenciando nomes reais encontrados.
+- "ja-existe": encontrou teste cobrindo exatamente este cenário nos arquivos fornecidos. Cite arquivo e procedure exatos.
+- "requer-refatoracao": faz sentido mas o código precisa de ajuste (extrair interface, usar DI). Explique o que refatorar.
+- "requer-isolamento": envolve comunicação externa real (DB, serviço web, UI VCL) impossível de mockar sem refatoração significativa.
+
+Gere 4-6 cenários. Se não encontrou arquivos de teste e não tem código para analisar, classifique com base na causa/solução descritas pelo dev e explique claramente o que seria necessário. Nunca classifique como "não testável" — sempre explique o que impede e o que seria necessário para viabilizar.`;
+
+            console.log(`[analyze-full] Chamando Claude IA com ${testFiles.length} arquivo(s) de teste...`);
+            const cliOutput = await callClaudeViaCli(prompt);
+            const parsed = safeParseJson(cliOutput);
+
+            if (!parsed) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: "IA não retornou JSON válido", raw: cliOutput.slice(0, 500) }));
+              return;
+            }
+
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(parsed));
+          } catch (e) {
+            console.error("[analyze-full] Erro:", e);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(e) }));
+          }
+          return;
+        }
+
         next();
       });
     },

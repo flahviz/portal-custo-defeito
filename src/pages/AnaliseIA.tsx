@@ -1,244 +1,210 @@
 import { useState } from 'react';
+import { Brain, CheckCircle2, AlertTriangle, Code2, Shield, ClipboardList, GitBranch, FileCode2, TestTube2, Loader2, ChevronDown, ChevronUp, ExternalLink, Wrench, Ban, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import {
-  Brain, Search, CheckCircle2, AlertTriangle, Code2, Shield,
-  ClipboardList, Loader2, ChevronDown, ChevronUp, Lightbulb,
-} from 'lucide-react';
-import {
-  fetchRtcCard, analyzeDefect,
-  RtcCard, DefectAnalysis,
-} from '@/lib/claudeService';
-import { stripHtml } from '@/lib/recorrenciaAnalysis';
+import { fetchRtcCard, analyzeDefectFull, type RtcCard, type FullAnalysis, type DefectScenario } from '@/lib/claudeService';
+import { findMRForDefect, getMRChanges, findTestFiles, type MRInfo, type TestFileInfo } from '@/lib/gitlabDefectService';
 
 const IS_DEV = import.meta.env.DEV;
 
-function CardDetails({ card }: { card: RtcCard }) {
-  const [showDesc, setShowDesc] = useState(false);
-  const causa = stripHtml(card.causa);
-  const solucao = stripHtml(card.solucao);
-  const desc = stripHtml(card.description);
+// ── Step pipeline ────────────────────────────────────────────────────────────
 
+type StepId = 'rtc' | 'mr' | 'diffs' | 'tests' | 'ai';
+type StepStatus = 'pending' | 'loading' | 'done' | 'skipped' | 'error';
+
+const STEP_LABELS: Record<StepId, string> = {
+  rtc:   'Buscando defeito no RTC',
+  mr:    'Procurando MR de correção no GitLab',
+  diffs: 'Analisando arquivos alterados',
+  tests: 'Buscando testes existentes no repositório',
+  ai:    'Gerando análise com IA',
+};
+
+function StepRow({ id, status, detail }: { id: StepId; status: StepStatus; detail?: string }) {
+  const icons: Record<StepStatus, React.ReactNode> = {
+    pending: <span className="w-4 h-4 rounded-full border border-border shrink-0" />,
+    loading: <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" />,
+    done:    <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />,
+    skipped: <span className="w-4 h-4 text-muted-foreground/40 shrink-0 flex items-center">—</span>,
+    error:   <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />,
+  };
   return (
-    <Card className="border-primary/30 bg-primary/5">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle className="text-base">#{card.id} — {card.title}</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              {card.funcionalidade && <span className="mr-3">{card.funcionalidade}</span>}
-              {card.versaoOrigem && <span className="font-mono mr-3">{card.versaoOrigem}</span>}
-              <Badge variant="secondary" className="text-xs">{card.status}</Badge>
-            </p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 text-sm">
-        {causa && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Causa</p>
-            <p className="whitespace-pre-wrap">{causa}</p>
-          </div>
+    <div className="flex items-start gap-3 py-2">
+      <div className="mt-0.5">{icons[status]}</div>
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm ${status === 'pending' ? 'text-muted-foreground/50' : status === 'error' ? 'text-red-400' : 'text-foreground'}`}>
+          {STEP_LABELS[id]}
+        </p>
+        {detail && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">{detail}</p>
         )}
-        {solucao && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Solução aplicada</p>
-            <p className="whitespace-pre-wrap">{solucao}</p>
-          </div>
-        )}
-        {desc && (
-          <div>
-            <button
-              className="text-xs text-primary underline underline-offset-2"
-              onClick={() => setShowDesc(v => !v)}
-            >
-              {showDesc ? 'Ocultar descrição' : 'Ver descrição completa'}
-              {showDesc ? <ChevronUp className="inline h-3 w-3 ml-1" /> : <ChevronDown className="inline h-3 w-3 ml-1" />}
-            </button>
-            {showDesc && <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{desc}</p>}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function AnalysisResult({ analysis }: { analysis: DefectAnalysis }) {
-  const [codeExpanded, setCodeExpanded] = useState(false);
-
-  return (
-    <div className="space-y-4">
-      {/* Causa raiz */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Brain className="h-4 w-4 text-purple-600" />
-            Análise da Causa Raiz
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm whitespace-pre-wrap">{analysis.causaRaiz}</p>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Testes unitários */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              Testes Unitários que teriam detectado
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analysis.testesUnitarios.map((t, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-xs font-bold text-muted-foreground mt-0.5 shrink-0">#{i + 1}</span>
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Testes de integração */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
-              Testes de Integração recomendados
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analysis.testesIntegracao.map((t, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-xs font-bold text-muted-foreground mt-0.5 shrink-0">#{i + 1}</span>
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Exemplo de código */}
-      {analysis.exemploTeste && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Code2 className="h-4 w-4 text-blue-600" />
-              Exemplo de Teste (JUnit/Mockito)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <pre className={`text-xs bg-muted rounded p-3 overflow-x-auto ${!codeExpanded ? 'max-h-48' : ''} overflow-hidden`}>
-                <code>{analysis.exemploTeste}</code>
-              </pre>
-              <button
-                onClick={() => setCodeExpanded(v => !v)}
-                className="absolute bottom-2 right-2 text-xs bg-background border border-border rounded px-2 py-1 text-muted-foreground hover:text-foreground"
-              >
-                {codeExpanded ? 'Recolher' : 'Expandir'}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Como evitar */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-700" />
-              Como evitar recorrência
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analysis.comoEvitar.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Checklist de code review */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-blue-600" />
-              Checklist de Code Review
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analysis.checklistReview.map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="h-4 w-4 rounded border border-border flex-shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
 }
 
+// ── Scenario card ─────────────────────────────────────────────────────────────
+
+const SCENARIO_CONFIG: Record<DefectScenario['status'], { label: string; color: string; bg: string; border: string; Icon: React.ElementType }> = {
+  'implementavel':       { label: 'Implementável',       color: 'text-green-400',  bg: 'bg-green-500/8',   border: 'border-green-500/25',  Icon: CheckCircle2 },
+  'ja-existe':           { label: 'Já existe',           color: 'text-blue-400',   bg: 'bg-blue-500/8',    border: 'border-blue-500/25',   Icon: Search },
+  'requer-refatoracao':  { label: 'Requer refatoração',  color: 'text-amber-400',  bg: 'bg-amber-500/8',   border: 'border-amber-500/25',  Icon: Wrench },
+  'requer-isolamento':   { label: 'Requer isolamento',   color: 'text-orange-400', bg: 'bg-orange-500/8',  border: 'border-orange-500/25', Icon: Ban },
+};
+
+function ScenarioCard({ scenario, index }: { scenario: DefectScenario; index: number }) {
+  const [open, setOpen] = useState(false);
+  const cfg = SCENARIO_CONFIG[scenario.status] ?? SCENARIO_CONFIG['requer-refatoracao'];
+  const Icon = cfg.Icon;
+
+  return (
+    <div className={`rounded-lg border ${cfg.border} ${cfg.bg}`}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-start gap-3 p-4 text-left hover:bg-white/3 transition-colors rounded-lg"
+      >
+        <Icon className={`h-4 w-4 ${cfg.color} mt-0.5 shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${cfg.color} border-current`}>
+              {cfg.label}
+            </Badge>
+            {scenario.arquivo && (
+              <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[240px]">
+                {scenario.arquivo.split('/').pop()}
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-foreground">{scenario.descricao}</p>
+          <p className="text-xs text-muted-foreground mt-1">{scenario.motivo}</p>
+        </div>
+        <span className="text-xs text-muted-foreground/50 font-mono shrink-0">#{index + 1}</span>
+        {scenario.codigoExemplo && (
+          open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+        )}
+      </button>
+      {open && scenario.codigoExemplo && (
+        <div className="px-4 pb-4">
+          <pre className="text-xs bg-zinc-950 text-zinc-100 rounded-lg p-4 overflow-x-auto leading-relaxed max-h-64 overflow-y-auto">
+            <code>{scenario.codigoExemplo}</code>
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export default function AnaliseIA() {
   const [cardInput, setCardInput] = useState('');
-  const [card, setCard] = useState<RtcCard | null>(null);
-  const [analysis, setAnalysis] = useState<DefectAnalysis | null>(null);
-  const [loadingCard, setLoadingCard] = useState(false);
-  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [gitlabToken, setGitlabToken] = useState(() => localStorage.getItem('radar_gitlab_token') ?? '');
 
-  async function handleFetchCard() {
-    const id = cardInput.trim().replace(/^#/, '');
-    if (!id) return;
-    setLoadingCard(true);
-    setError(null);
-    setCard(null);
-    setAnalysis(null);
-    try {
-      const result = await fetchRtcCard(id);
-      if (!result) throw new Error('Busca de cards disponível apenas em modo de desenvolvimento.');
-      setCard(result);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao buscar card.');
-    } finally {
-      setLoadingCard(false);
-    }
+  const [steps, setSteps] = useState<Record<StepId, StepStatus>>({
+    rtc: 'pending', mr: 'pending', diffs: 'pending', tests: 'pending', ai: 'pending',
+  });
+  const [stepDetails, setStepDetails] = useState<Partial<Record<StepId, string>>>({});
+
+  const [card, setCard] = useState<RtcCard | null>(null);
+  const [mr, setMr] = useState<MRInfo | null>(null);
+  const [testFiles, setTestFiles] = useState<TestFileInfo[]>([]);
+  const [analysis, setAnalysis] = useState<FullAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [running, setRunning] = useState(false);
+
+  function setStep(id: StepId, status: StepStatus, detail?: string) {
+    setSteps(s => ({ ...s, [id]: status }));
+    if (detail !== undefined) setStepDetails(d => ({ ...d, [id]: detail }));
   }
 
   async function handleAnalyze() {
-    if (!card) return;
-    setLoadingAnalysis(true);
+    const id = cardInput.trim().replace(/^#/, '');
+    if (!id) return;
+    if (gitlabToken) localStorage.setItem('radar_gitlab_token', gitlabToken);
+
+    setRunning(true);
     setError(null);
-    setAnalysis(null);
+    setCard(null); setMr(null); setTestFiles([]); setAnalysis(null);
+    setSteps({ rtc: 'loading', mr: 'pending', diffs: 'pending', tests: 'pending', ai: 'pending' });
+    setStepDetails({});
+
     try {
-      const result = await analyzeDefect(card);
+      // Step 1 — RTC
+      const fetchedCard = await fetchRtcCard(id);
+      if (!fetchedCard) throw new Error(`Card #${id} não encontrado`);
+      setCard(fetchedCard);
+      setStep('rtc', 'done', `#${fetchedCard.id} — ${fetchedCard.title}`);
+
+      // Step 2 — MR
+      let fetchedMr: MRInfo | null = null;
+      if (gitlabToken) {
+        setStep('mr', 'loading');
+        fetchedMr = await findMRForDefect(id, gitlabToken);
+        if (fetchedMr) {
+          setStep('mr', 'done', `!${fetchedMr.iid} — ${fetchedMr.title}`);
+        } else {
+          setStep('mr', 'skipped', 'Nenhum MR com este ID encontrado');
+        }
+      } else {
+        setStep('mr', 'skipped', 'Token GitLab não informado');
+      }
+
+      // Step 3 — Diffs
+      let fetchedTestFiles: TestFileInfo[] = [];
+      if (fetchedMr && gitlabToken) {
+        setStep('diffs', 'loading');
+        const { changedFiles, diffsContext } = await getMRChanges(fetchedMr.iid, gitlabToken);
+        fetchedMr = { ...fetchedMr, changedFiles, diffsContext };
+        setMr(fetchedMr);
+        setStep('diffs', 'done', `${changedFiles.length} arquivo(s): ${changedFiles.slice(0, 2).map(f => f.split('/').pop()).join(', ')}${changedFiles.length > 2 ? '...' : ''}`);
+
+        // Step 4 — Test files
+        setStep('tests', 'loading');
+        fetchedTestFiles = await findTestFiles(changedFiles, gitlabToken);
+        setTestFiles(fetchedTestFiles);
+        if (fetchedTestFiles.length > 0) {
+          setStep('tests', 'done', `${fetchedTestFiles.length} arquivo(s): ${fetchedTestFiles.map(f => f.path.split('/').pop()).join(', ')}`);
+        } else {
+          setStep('tests', 'skipped', 'Nenhum arquivo de teste encontrado nos diretórios alterados');
+        }
+      } else {
+        setStep('diffs', 'skipped', 'Requer MR encontrado');
+        setStep('tests', 'skipped', 'Requer MR encontrado');
+      }
+
+      // Step 5 — Claude
+      setStep('ai', 'loading', 'Pode levar 20–40 segundos...');
+      const result = await analyzeDefectFull(
+        fetchedCard,
+        fetchedMr,
+        fetchedTestFiles.map(tf => ({ path: tf.path, content: tf.content })),
+      );
       setAnalysis(result);
+      setStep('ai', 'done', `${result.cenarios?.length ?? 0} cenário(s) gerado(s)`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro na análise com IA.');
+      setError(e instanceof Error ? e.message : 'Erro desconhecido');
+      setSteps(s => {
+        const next = { ...s };
+        (Object.keys(next) as StepId[]).forEach(k => { if (next[k] === 'loading') next[k] = 'error'; });
+        return next;
+      });
     } finally {
-      setLoadingAnalysis(false);
+      setRunning(false);
     }
   }
 
+  const isStarted = steps.rtc !== 'pending' || running;
+
+  const implementaveis = analysis?.cenarios.filter(c => c.status === 'implementavel' || c.status === 'ja-existe').length ?? 0;
+  const pendentes = analysis?.cenarios.filter(c => c.status === 'requer-refatoracao' || c.status === 'requer-isolamento').length ?? 0;
+
   return (
     <div className="space-y-8 max-w-5xl">
+
+      {/* Header */}
       <div>
         <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
           Inteligência Artificial · Vertical Procuradorias
@@ -247,84 +213,251 @@ export default function AnaliseIA() {
           Análise de Defeito com <span style={{ color: '#ec4899' }}>IA</span>
         </h1>
         <p className="text-muted-foreground text-sm mt-2 max-w-xl">
-          Informe o número de um card RTC para obter análise de causa raiz, sugestão de testes e checklist de code review gerados pela IA.
+          Informe o ID do defeito RTC. A IA busca o MR de correção no GitLab, analisa os arquivos alterados,
+          identifica testes existentes e sugere cenários implementáveis no código do projeto.
         </p>
       </div>
 
       {!IS_DEV && (
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardContent className="pt-4 text-sm text-yellow-800">
-            <strong>Atenção:</strong> Esta funcionalidade requer o servidor de desenvolvimento local (<code>npm run dev</code>) com <code>RTC_USER</code>, <code>RTC_PASS</code> e <code>ANTHROPIC_API_KEY</code> configurados no arquivo <code>.env</code>.
+        <Card className="border-yellow-500/25 bg-yellow-500/8">
+          <CardContent className="pt-4 text-sm text-yellow-300">
+            <strong>Atenção:</strong> Esta funcionalidade requer o servidor de desenvolvimento local (<code>bun dev</code>) com <code>RTC_USER</code>, <code>RTC_PASS</code> e <code>ANTHROPIC_API_KEY</code> no arquivo <code>.env</code>.
           </CardContent>
         </Card>
       )}
 
-      {/* Busca do card */}
+      {/* Input */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Search className="h-4 w-4 text-primary" />
-            Buscar Card RTC
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3">
-            <Input
-              placeholder="Número do card (ex: 878476)"
-              value={cardInput}
-              onChange={e => setCardInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleFetchCard()}
-              className="max-w-xs"
-            />
-            <Button onClick={handleFetchCard} disabled={!cardInput.trim() || loadingCard}>
-              {loadingCard ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Buscando...</> : 'Buscar'}
+        <CardContent className="pt-5">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="space-y-1.5 min-w-[160px]">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Card RTC</Label>
+              <Input
+                placeholder="ex: 884047"
+                value={cardInput}
+                onChange={e => setCardInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !running && handleAnalyze()}
+                className="w-40 font-mono"
+                disabled={running}
+              />
+            </div>
+            <div className="space-y-1.5 flex-1 min-w-[240px]">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                Token GitLab <span className="normal-case text-muted-foreground/50">(para buscar MR e testes — recomendado)</span>
+              </Label>
+              <Input
+                type="password"
+                placeholder="glpat-..."
+                value={gitlabToken}
+                onChange={e => setGitlabToken(e.target.value)}
+                disabled={running}
+              />
+            </div>
+            <Button onClick={handleAnalyze} disabled={!cardInput.trim() || running || !IS_DEV} className="shrink-0">
+              {running ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Analisando...</> : <><Brain className="h-4 w-4 mr-2" />Analisar</>}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {error && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-4 text-sm text-red-700">{error}</CardContent>
+      {/* Pipeline */}
+      {isStarted && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-muted-foreground/60 tracking-wider uppercase">
+              // Pipeline de análise
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="divide-y divide-border/50">
+            {(Object.keys(steps) as StepId[]).map(id => (
+              <StepRow key={id} id={id} status={steps[id]} detail={stepDetails[id]} />
+            ))}
+          </CardContent>
         </Card>
       )}
 
-      {/* Detalhes do card encontrado */}
-      {card && (
-        <>
-          <CardDetails card={card} />
+      {error && (
+        <div className="rounded-lg border border-red-500/25 bg-red-500/8 p-4 text-sm text-red-400">
+          {error}
+        </div>
+      )}
 
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleAnalyze}
-              disabled={loadingAnalysis}
-              className="gap-2"
-              size="lg"
-            >
-              {loadingAnalysis
-                ? <><Loader2 className="h-4 w-4 animate-spin" />Analisando com IA...</>
-                : <><Brain className="h-4 w-4" />Analisar com IA</>
-              }
-            </Button>
-            {loadingAnalysis && (
-              <p className="text-sm text-muted-foreground">
-                Isso pode levar 15–30 segundos...
-              </p>
+      {/* Results */}
+      {analysis && card && (
+        <div className="space-y-6">
+
+          {/* Summary bar */}
+          <div className="flex flex-wrap gap-4 items-center p-4 rounded-lg border border-border bg-muted/20">
+            <div className="flex items-center gap-2">
+              <FileCode2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">#{card.id}</span>
+              <span className="text-sm text-muted-foreground truncate max-w-sm">{card.title}</span>
+            </div>
+            {mr && (
+              <>
+                <span className="text-muted-foreground/40 hidden sm:block">·</span>
+                <a href={mr.webUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-[#3b82f6] hover:underline">
+                  <GitBranch className="h-3 w-3" />
+                  !{mr.iid}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+                <span className="text-xs text-muted-foreground">{mr.changedFiles.length} arquivo(s) alterado(s)</span>
+              </>
             )}
+            {testFiles.length > 0 && (
+              <>
+                <span className="text-muted-foreground/40 hidden sm:block">·</span>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <TestTube2 className="h-3 w-3" />
+                  {testFiles.reduce((a, f) => a + f.testsCount, 0)} testes em {testFiles.length} arquivo(s)
+                </span>
+              </>
+            )}
+            <div className="ml-auto flex gap-2">
+              {implementaveis > 0 && (
+                <Badge variant="outline" className="text-green-400 border-green-500/25 text-[10px]">
+                  {implementaveis} implementáveis
+                </Badge>
+              )}
+              {pendentes > 0 && (
+                <Badge variant="outline" className="text-amber-400 border-amber-500/25 text-[10px]">
+                  {pendentes} com bloqueio
+                </Badge>
+              )}
+            </div>
           </div>
 
-          {analysis && (
-            <>
-              <Separator />
-              <div className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
-                <h2 className="text-lg font-semibold">Análise gerada pela IA</h2>
-                <Badge variant="secondary" className="text-xs">Claude Sonnet</Badge>
+          {/* Scenarios — main value */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+                // Cenários de teste
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <div className="space-y-2">
+              {analysis.cenarios.map((c, i) => (
+                <ScenarioCard key={i} scenario={c} index={i} />
+              ))}
+            </div>
+          </div>
+
+          {/* Causa raiz */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+                // Causa raiz
+              </span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex gap-3">
+                  <Brain className="h-4 w-4 text-[#ec4899] mt-0.5 shrink-0" />
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{analysis.causaRaiz}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Como evitar + Checklist */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+                  // Como evitar
+                </span>
+                <div className="flex-1 h-px bg-border" />
               </div>
-              <AnalysisResult analysis={analysis} />
-            </>
+              <Card>
+                <CardContent className="pt-4">
+                  <ul className="space-y-2">
+                    {analysis.comoEvitar.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm">
+                        <Shield className="h-3.5 w-3.5 text-[#ec4899] mt-0.5 shrink-0" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+                  // Checklist de review
+                </span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              <Card>
+                <CardContent className="pt-4">
+                  <ul className="space-y-2">
+                    {analysis.checklistReview.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm">
+                        <ClipboardList className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Changed files + test files detail (collapsible) */}
+          {(mr?.changedFiles.length || testFiles.length > 0) && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-4">
+                <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+                  // Contexto do código
+                </span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {mr && mr.changedFiles.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Code2 className="h-4 w-4 text-muted-foreground" />
+                        Arquivos alterados no MR !{mr.iid}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-1">
+                        {mr.changedFiles.map(f => (
+                          <li key={f} className="text-xs font-mono text-muted-foreground truncate">
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+                {testFiles.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <TestTube2 className="h-4 w-4 text-muted-foreground" />
+                        Arquivos de teste encontrados
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {testFiles.map(f => (
+                          <li key={f.path} className="text-xs font-mono">
+                            <span className="text-muted-foreground truncate block">{f.path}</span>
+                            <span className="text-muted-foreground/50">{f.testsCount} procedure(s) de teste</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

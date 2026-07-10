@@ -86,6 +86,41 @@ export async function validateTests(
   return res.json();
 }
 
+// ── Análise completa de defeito com contexto do código ───────────────────────
+
+export interface DefectScenario {
+  descricao: string;
+  status: 'implementavel' | 'ja-existe' | 'requer-refatoracao' | 'requer-isolamento';
+  motivo: string;
+  arquivo: string | null;
+  codigoExemplo: string | null;
+}
+
+export interface FullAnalysis {
+  causaRaiz: string;
+  cenarios: DefectScenario[];
+  comoEvitar: string[];
+  checklistReview: string[];
+}
+
+export async function analyzeDefectFull(
+  card: RtcCard,
+  mr: { iid: number; title: string; webUrl: string; mergedAt: string; changedFiles: string[]; diffsContext: string } | null,
+  testFiles: { path: string; content: string }[],
+): Promise<FullAnalysis> {
+  if (!IS_DEV) throw new Error('Disponível apenas em modo de desenvolvimento.');
+  const res = await fetch('/api/claude/analyze-defect-full', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ card, mr, testFiles }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error((err as { error: string }).error ?? `Erro ${res.status}`);
+  }
+  return res.json();
+}
+
 export async function analyzeCluster(cluster: Record<string, unknown>): Promise<ClusterAnalysis> {
   if (!IS_DEV) throw new Error("Análise com IA disponível apenas em modo de desenvolvimento.");
   const res = await fetch("/api/claude/analyze", {
