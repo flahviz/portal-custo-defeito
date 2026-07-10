@@ -38,9 +38,9 @@ import {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function issStatusConfig(pct: number) {
-  if (pct >= 85) return { color: '#22c55e', border: 'border-green-200', bg: 'bg-green-50', label: 'Saudável', Icon: CheckCircle2 };
-  if (pct >= 60) return { color: '#f59e0b', border: 'border-yellow-200', bg: 'bg-yellow-50', label: 'Atenção', Icon: TrendingDown };
-  return { color: '#ef4444', border: 'border-red-200', bg: 'bg-red-50', label: 'Crítico', Icon: AlertTriangle };
+  if (pct >= 85) return { color: '#22c55e', border: 'border-green-500/25', bg: 'bg-green-500/8', label: 'Saudável', Icon: CheckCircle2 };
+  if (pct >= 60) return { color: '#f59e0b', border: 'border-yellow-500/25', bg: 'bg-yellow-500/8', label: 'Atenção', Icon: TrendingDown };
+  return { color: '#ef4444', border: 'border-red-500/25', bg: 'bg-red-500/8', label: 'Crítico', Icon: AlertTriangle };
 }
 
 // ── Barra de status consolidado ───────────────────────────────────────────────
@@ -64,7 +64,7 @@ function StatusBar({
   if (!issData && !recorrentesData && totalCusto === 0) return null;
 
   return (
-    <Card className={`border ${hasAlerts ? 'border-yellow-200 bg-yellow-50/50' : 'border-green-200 bg-green-50/50'}`}>
+    <Card className={`border ${hasAlerts ? 'border-yellow-500/25 bg-yellow-500/5' : 'border-green-500/25 bg-green-500/5'}`}>
       <CardContent className="py-3 px-4">
         <div className="flex flex-wrap items-center gap-3 text-sm">
           {cfg && issPct !== null && (
@@ -222,10 +222,10 @@ function ISSEmpty() {
 // ── Painel Recorrentes ──────────────────────────────────────────────────────
 
 const TIPO_RANK_CONFIG = [
-  { key: 'regressao' as const,   label: 'Regressão',   color: 'text-red-700',    bg: 'bg-red-50',    border: 'border-red-200' },
-  { key: 'recorrencia' as const, label: 'Recorrência', color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-200' },
-  { key: 'duplicata' as const,   label: 'Duplicata',   color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-200' },
-  { key: 'similar' as const,     label: 'Similar',     color: 'text-blue-700',   bg: 'bg-blue-50',   border: 'border-blue-200' },
+  { key: 'regressao' as const,   label: 'Regressão',   color: 'text-red-400',    bg: 'bg-red-500/8',    border: 'border-red-500/25' },
+  { key: 'recorrencia' as const, label: 'Recorrência', color: 'text-orange-400', bg: 'bg-orange-500/8', border: 'border-orange-500/25' },
+  { key: 'duplicata' as const,   label: 'Duplicata',   color: 'text-yellow-400', bg: 'bg-yellow-500/8', border: 'border-yellow-500/25' },
+  { key: 'similar' as const,     label: 'Similar',     color: 'text-blue-400',   bg: 'bg-blue-500/8',   border: 'border-blue-500/25' },
 ];
 
 function RecorrentesPanel({ data }: { data: RecorrentesCache }) {
@@ -326,10 +326,10 @@ function TopDefectos({ defects }: { defects: Defect[] }) {
   );
 
   const severidadeColor: Record<string, string> = {
-    critica: 'text-red-700 bg-red-50 border-red-200',
-    alta:    'text-orange-700 bg-orange-50 border-orange-200',
-    media:   'text-yellow-700 bg-yellow-50 border-yellow-200',
-    baixa:   'text-blue-700 bg-blue-50 border-blue-200',
+    critica: 'text-red-400 bg-red-500/8 border-red-500/25',
+    alta:    'text-orange-400 bg-orange-500/8 border-orange-500/25',
+    media:   'text-yellow-400 bg-yellow-500/8 border-yellow-500/25',
+    baixa:   'text-blue-400 bg-blue-500/8 border-blue-500/25',
   };
 
   if (defects.length === 0) return null;
@@ -380,9 +380,9 @@ function RadarRisco({ data }: { data: RecorrentesCache }) {
   if (areas.length === 0) return null;
 
   function risco(count: number): { label: string; color: string; bg: string; border: string } {
-    if (count >= 5) return { label: 'Crítico', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200' };
-    if (count >= 3) return { label: 'Alto', color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-200' };
-    return { label: 'Médio', color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-200' };
+    if (count >= 5) return { label: 'Crítico', color: 'text-red-400', bg: 'bg-red-500/8', border: 'border-red-500/25' };
+    if (count >= 3) return { label: 'Alto', color: 'text-orange-400', bg: 'bg-orange-500/8', border: 'border-orange-500/25' };
+    return { label: 'Médio', color: 'text-yellow-400', bg: 'bg-yellow-500/8', border: 'border-yellow-500/25' };
   }
 
   return (
@@ -617,7 +617,7 @@ export default function Dashboard() {
               </Card>
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-yellow-100 p-2"><AlertTriangle className="h-5 w-5 text-yellow-600" /></div>
+                  <div className="rounded-full bg-yellow-500/15 p-2"><AlertTriangle className="h-5 w-5 text-yellow-400" /></div>
                   <div>
                     <p className="text-xs text-muted-foreground">Custo com impacto</p>
                     <p className="text-lg font-bold">{formatCurrency(totalCustoComImpacto)}</p>
@@ -626,21 +626,21 @@ export default function Dashboard() {
               </Card>
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-green-100 p-2"><Shield className="h-5 w-5 text-green-600" /></div>
+                  <div className="rounded-full bg-green-500/15 p-2"><Shield className="h-5 w-5 text-green-400" /></div>
                   <div>
                     <p className="text-xs text-muted-foreground">Economia potencial</p>
-                    <p className="text-lg font-bold text-green-700">{formatCurrency(totalEconomiaPotencial)}</p>
+                    <p className="text-lg font-bold text-green-400">{formatCurrency(totalEconomiaPotencial)}</p>
                   </div>
                 </div>
               </Card>
               {defectosContidos.length > 0 && (
-                <Card className="p-4 border-blue-200 bg-blue-50/50">
+                <Card className="p-4 border-blue-500/25 bg-blue-500/8">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-blue-100 p-2"><ShieldCheck className="h-5 w-5 text-blue-600" /></div>
+                    <div className="rounded-full bg-blue-500/15 p-2"><ShieldCheck className="h-5 w-5 text-blue-400" /></div>
                     <div>
                       <p className="text-xs text-muted-foreground">Contidos pelo QA</p>
-                      <p className="text-lg font-bold text-blue-700">{defectosContidos.length} defeitos</p>
-                      <p className="text-[10px] text-blue-600">{formatCurrency(custoEvitado)} evitados</p>
+                      <p className="text-lg font-bold text-blue-400">{defectosContidos.length} defeitos</p>
+                      <p className="text-[10px] text-blue-400/70">{formatCurrency(custoEvitado)} evitados</p>
                     </div>
                   </div>
                 </Card>
