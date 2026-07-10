@@ -247,16 +247,17 @@ export default function IssSquad() {
   const startDateDisplay = `01/${String(startMonth + 1).padStart(2, '0')}/${startYear}`;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Activity className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Índice de Saúde por Squad (ISS)</h1>
-          <p className="text-sm text-muted-foreground">
-            Cruza velocidade de entrega (releases) com custo de defeitos para medir a saúde do squad
-          </p>
-        </div>
+    <div className="space-y-8">
+      <div>
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Saúde · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          ISS — Índice de <span style={{ color: '#8b5cf6' }}>Saúde</span>
+        </h1>
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
+          Cruza velocidade de entrega (releases) com custo de defeitos para medir a saúde do squad
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

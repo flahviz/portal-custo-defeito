@@ -202,10 +202,14 @@ export default function Simulator() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Análise de Defeitos</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Simulação · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Simulador de <span style={{ color: '#10b981' }}>Custo</span>
+        </h1>
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
           Configure os detalhes do defeito para calcular seu impacto financeiro
         </p>
       </div>

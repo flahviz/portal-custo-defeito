@@ -545,10 +545,15 @@ export default function RecorrentesPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Defeitos Recorrentes</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Análise · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Defeitos <span style={{ color: '#f59e0b' }}>Recorrentes</span>
+        </h1>
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
           Identifica grupos de defeitos similares via similaridade de causa, solução e funcionalidade (OSLC).
           Usa componentes conexos — similaridade é transitiva.
         </p>

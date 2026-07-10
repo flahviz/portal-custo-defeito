@@ -544,14 +544,28 @@ export default function Dashboard() {
 
   const hasAnyCostData = defects.length > 0;
 
+  function Divider({ label }: { label: string }) {
+    return (
+      <div className="flex items-center gap-4">
+        <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+          // {label}
+        </span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Cabeçalho */}
+    <div className="space-y-8">
+      {/* ── Cabeçalho ── */}
       <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-          Visão Geral
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Vertical Procuradorias · Softplan
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Visão <span className="text-[#3b82f6]">Geral</span>
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-2">
           Panorama consolidado de qualidade do squad
         </p>
       </div>
@@ -564,18 +578,19 @@ export default function Dashboard() {
         totalCusto={totalCustoComImpacto}
       />
 
-      {/* ISS + Recorrentes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {issData ? <ISSPanel data={issData} /> : <ISSEmpty />}
-        {recorrentesData ? <RecorrentesPanel data={recorrentesData} /> : <RecorrentesEmpty />}
+      {/* ── ISS + Recorrentes ── */}
+      <div className="space-y-4">
+        <Divider label="Saúde do Squad" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {issData ? <ISSPanel data={issData} /> : <ISSEmpty />}
+          {recorrentesData ? <RecorrentesPanel data={recorrentesData} /> : <RecorrentesEmpty />}
+        </div>
       </div>
 
-      {/* Radar de Risco + Top Causas */}
+      {/* ── Radar de Risco + Top Causas ── */}
       {recorrentesData && (recorrentesData.topFuncionalidades.some(f => f.count >= 2) || (recorrentesData.topCausas?.length ?? 0) > 0) && (
-        <div>
-          <h2 className="text-base font-semibold mb-4 text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-            <Flame className="h-4 w-4 text-orange-500" /> Prevenção e Risco
-          </h2>
+        <div className="space-y-4">
+          <Divider label="Prevenção e Risco" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <RadarRisco data={recorrentesData} />
             <TopCausas data={recorrentesData} />
@@ -583,13 +598,11 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Custo — KPIs + gráficos + top 3 */}
+      {/* ── Custo — KPIs + gráficos + top 3 ── */}
       {hasAnyCostData ? (
         <>
-          <div>
-            <h2 className="text-base font-semibold mb-4 text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-              <DollarSign className="h-4 w-4" /> Custo de Defeitos (Simulador)
-            </h2>
+          <div className="space-y-4">
+            <Divider label="Custo de Defeitos" />
 
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

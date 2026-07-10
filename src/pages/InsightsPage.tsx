@@ -710,13 +710,15 @@ export default function InsightsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
-          Insights de Qualidade
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Métricas · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Insights de <span style={{ color: '#06b6d4' }}>Qualidade</span>
         </h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
           Mapa de calor, MTTR, qualidade de releases e comparativo entre squads
         </p>
       </div>

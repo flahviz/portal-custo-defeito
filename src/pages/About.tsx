@@ -1,349 +1,268 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Target,
-  TrendingUp,
-  Shield,
-  Users,
-  BookOpen,
-  Lightbulb,
-  CheckCircle,
-  AlertTriangle,
-  BarChart3,
-  Calculator,
-  GitBranch,
-  ExternalLink,
+  Target, TrendingUp, Shield, BookOpen, Lightbulb,
+  CheckCircle, AlertTriangle, BarChart3, Calculator,
+  GitBranch, ExternalLink, RefreshCw, Activity, Brain,
 } from 'lucide-react';
+
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-8">
+      <span className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.18em] uppercase shrink-0">
+        // {label}
+      </span>
+      <div className="flex-1 h-px bg-border" />
+    </div>
+  );
+}
+
+function Tag({ label, color = 'border-border text-muted-foreground' }: { label: string; color?: string }) {
+  return (
+    <span className={`inline-flex items-center text-[10px] font-mono tracking-wider uppercase border rounded px-2 py-0.5 ${color}`}>
+      {label}
+    </span>
+  );
+}
 
 export default function About() {
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">Entenda a Ferramenta</h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Compreenda a teoria, motivadores e objetivos por trás da criação desta ferramenta de
-          análise do impacto financeiro de defeitos.
+    <div className="space-y-16 max-w-5xl">
+
+      {/* ── Hero ── */}
+      <div>
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-4">
+          Vertical Procuradorias · Softplan
         </p>
+        <h1 className="text-5xl font-bold text-foreground leading-tight mb-4">
+          Radar de <span className="text-primary">Qualidade</span>
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl">
+          Ferramenta executiva para análise e simulação do impacto financeiro de defeitos em projetos de software.
+          Desenvolvida pelo Time de Qualidade da Vertical de Procuradorias.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-6">
+          <Tag label="Time de Qualidade" color="border-primary/30 text-primary" />
+          <Tag label="InnerSource" color="border-border text-muted-foreground" />
+          <Tag label="Vertical Procuradorias" color="border-border text-muted-foreground" />
+        </div>
       </div>
 
-      {/* Team Info */}
-      <Card className="bg-gradient-card border-primary/20">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Shield className="h-6 w-6 text-primary" />
-            <div>
-              <CardTitle className="text-primary">Time de Qualidade</CardTitle>
-              <CardDescription>Vertical de Procuradorias • Softplan</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Esta ferramenta foi desenvolvida pelo Time de Qualidade da Vertical de Procuradorias da
-            Softplan, com o objetivo de fornecer uma solução executiva para análise e simulação do
-            impacto financeiro de defeitos em projetos de software.
-          </p>
-        </CardContent>
-      </Card>
+      {/* ── Funcionalidades ── */}
+      <div>
+        <SectionDivider label="Funcionalidades" />
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            {
+              icon: BarChart3,
+              color: '#3b82f6',
+              title: 'Visão Geral',
+              desc: 'Dashboard executivo com KPIs consolidados, Radar de Risco e Custo Evitado pelo QA.',
+            },
+            {
+              icon: RefreshCw,
+              color: '#f59e0b',
+              title: 'Defeitos Recorrentes',
+              desc: 'Clusterização automática de defeitos por regressão, recorrência e duplicatas.',
+            },
+            {
+              icon: Calculator,
+              color: '#10b981',
+              title: 'Simulador de Custo',
+              desc: 'Simule diferentes cenários e calcule o impacto financeiro por fase e cargo.',
+            },
+            {
+              icon: Activity,
+              color: '#8b5cf6',
+              title: 'ISS por Squad',
+              desc: 'Índice de Saúde do Squad cruzando deploys GitLab com custo de defeitos RTC.',
+            },
+            {
+              icon: TrendingUp,
+              color: '#06b6d4',
+              title: 'Insights',
+              desc: 'Mapa de calor, MTTR, análise de releases e arquivos mais impactados por defeitos.',
+            },
+            {
+              icon: Brain,
+              color: '#ec4899',
+              title: 'Análise IA',
+              desc: 'Identificação de clusters com Claude AI e validação de cobertura de testes.',
+            },
+          ].map((f) => (
+            <Card
+              key={f.title}
+              className="border-t-2 bg-card hover:bg-secondary/20 transition-colors"
+              style={{ borderTopColor: f.color }}
+            >
+              <CardContent className="pt-5 space-y-2">
+                <f.icon className="h-5 w-5 mb-3" style={{ color: f.color }} />
+                <p className="font-semibold text-foreground">{f.title}</p>
+                <p className="text-sm text-muted-foreground">{f.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-      {/* Theory Section */}
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <BookOpen className="h-6 w-6 text-primary" />
-              <CardTitle>Fundamentação Teórica</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                Custo da Qualidade
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                O conceito de "Custo da Qualidade" foi desenvolvido por Philip Crosby e categoriza
-                os custos relacionados à qualidade em quatro tipos principais:
+      {/* ── Fundamentação ── */}
+      <div>
+        <SectionDivider label="Fundamentação Teórica" />
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="border-t-2" style={{ borderTopColor: '#8b5cf6' }}>
+            <CardContent className="pt-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-primary" />
+                <p className="font-semibold text-sm">Custo da Qualidade — Philip Crosby</p>
+              </div>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                {[
+                  { tag: 'PREVENÇÃO', desc: 'Treinamentos, revisões de código, processos de qualidade.' },
+                  { tag: 'AVALIAÇÃO', desc: 'Inspeção e teste para detectar defeitos antes da entrega.' },
+                  { tag: 'FALHA INTERNA', desc: 'Retrabalho e correções antes da entrega ao cliente.' },
+                  { tag: 'FALHA EXTERNA', desc: 'Suporte, garantias e perda de reputação pós-entrega.' },
+                ].map((item) => (
+                  <div key={item.tag} className="flex gap-3">
+                    <Tag label={item.tag} color="border-primary/30 text-primary" />
+                    <span className="flex-1">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-t-2" style={{ borderTopColor: '#3b82f6' }}>
+            <CardContent className="pt-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-[#3b82f6]" />
+                <p className="font-semibold text-sm">Multiplicadores por Fase — IBM SSI</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { mult: '1×', fase: 'Desenvolvimento', color: '#10b981' },
+                  { mult: '5×', fase: 'Teste', color: '#f59e0b' },
+                  { mult: '10×', fase: 'Homologação', color: '#f97316' },
+                  { mult: '30×', fase: 'Produção', color: '#ef4444' },
+                ].map((m) => (
+                  <div key={m.fase} className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+                    <p className="text-2xl font-bold mb-1" style={{ color: m.color }}>{m.mult}</p>
+                    <p className="text-xs text-muted-foreground">{m.fase}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                O custo de correção aumenta exponencialmente conforme o defeito avança no ciclo de desenvolvimento.
               </p>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Badge variant="secondary" className="mb-2">
-                    Custos de Prevenção
-                  </Badge>
-                  <p className="text-sm text-muted-foreground">
-                    Investimentos em atividades que previnem defeitos, como treinamentos, revisões
-                    de código e implementação de processos de qualidade.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Badge variant="secondary" className="mb-2">
-                    Custos de Avaliação
-                  </Badge>
-                  <p className="text-sm text-muted-foreground">
-                    Gastos com atividades de inspeção e teste para detectar defeitos antes da
-                    entrega ao cliente.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Badge variant="destructive" className="mb-2">
-                    Custos de Falha Interna
-                  </Badge>
-                  <p className="text-sm text-muted-foreground">
-                    Custos de defeitos encontrados antes da entrega, incluindo retrabalho, correções
-                    e tempo perdido.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Badge variant="destructive" className="mb-2">
-                    Custos de Falha Externa
-                  </Badge>
-                  <p className="text-sm text-muted-foreground">
-                    Custos de defeitos encontrados pelo cliente, incluindo suporte, garantias e
-                    perda de reputação.
-                  </p>
-                </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* ── Motivadores ── */}
+      <div>
+        <SectionDivider label="Motivadores" />
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="border-t-2" style={{ borderTopColor: '#f59e0b' }}>
+            <CardContent className="pt-5">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertTriangle className="h-4 w-4 text-[#f59e0b]" />
+                <p className="font-semibold text-sm">Desafios Identificados</p>
               </div>
-            </div>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                {[
+                  'Dificuldade em quantificar o impacto financeiro real dos defeitos',
+                  'Falta de visibilidade executiva sobre custos de qualidade',
+                  'Necessidade de justificar investimentos em qualidade',
+                  'Ausência de ferramentas para simulação de cenários',
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] mt-1.5 shrink-0" />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
-            <Separator />
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Multiplicadores de Custo por Fase
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                O custo de correção de um defeito aumenta exponencialmente conforme ele progride no
-                ciclo de desenvolvimento. Esta ferramenta utiliza os seguintes multiplicadores
-                baseados em estudos da indústria de software (fonte: IBM Systems Sciences
-                Institute):
-              </p>
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <div className="text-2xl font-bold text-green-600 mb-2">1x</div>
-                  <div className="text-sm font-medium mb-1">Desenvolvimento</div>
-                  <div className="text-xs text-muted-foreground">
-                    Custo base para correção durante o desenvolvimento
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <div className="text-2xl font-bold text-yellow-600 mb-2">5x</div>
-                  <div className="text-sm font-medium mb-1">Teste</div>
-                  <div className="text-xs text-muted-foreground">
-                    5 vezes mais caro quando encontrado em testes
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                  <div className="text-2xl font-bold text-orange-600 mb-2">10x</div>
-                  <div className="text-sm font-medium mb-1">Homologação</div>
-                  <div className="text-xs text-muted-foreground">
-                    10 vezes mais caro quando encontrado em homologação
-                  </div>
-                </div>
-                <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-                  <div className="text-2xl font-bold text-red-600 mb-2">30x</div>
-                  <div className="text-sm font-medium mb-1">Produção</div>
-                  <div className="text-xs text-muted-foreground">
-                    30 vezes mais caro quando encontrado pelo cliente
-                  </div>
-                </div>
+          <Card className="border-t-2" style={{ borderTopColor: '#10b981' }}>
+            <CardContent className="pt-5">
+              <div className="flex items-center gap-2 mb-4">
+                <CheckCircle className="h-4 w-4 text-[#10b981]" />
+                <p className="font-semibold text-sm">Objetivos da Solução</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                {[
+                  'Fornecer métricas claras sobre o impacto financeiro de defeitos',
+                  'Criar dashboards executivos para tomada de decisão',
+                  'Permitir simulações de diferentes cenários de qualidade',
+                  'Demonstrar o ROI de investimentos em qualidade',
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
-        {/* Motivators Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Lightbulb className="h-6 w-6 text-primary" />
-              <CardTitle>Motivadores da Criação</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  Desafios Identificados
-                </h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Dificuldade em quantificar o impacto financeiro real dos defeitos
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Falta de visibilidade executiva sobre custos de qualidade
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Necessidade de justificar investimentos em qualidade
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Ausência de ferramentas para simulação de cenários
-                  </li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  Objetivos da Solução
-                </h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Fornecer métricas claras sobre o impacto financeiro de defeitos
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Criar dashboards executivos para tomada de decisão
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Permitir simulações de diferentes cenários de qualidade
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                    Demonstrar o ROI de investimentos em qualidade
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Features Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Users className="h-6 w-6 text-primary" />
-              <CardTitle>Funcionalidades da Ferramenta</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
+      {/* ── InnerSource ── */}
+      <div>
+        <SectionDivider label="Projeto InnerSource" />
+        <Card className="border-t-2" style={{ borderTopColor: '#3b82f6' }}>
+          <CardContent className="pt-6">
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center space-y-3">
-                <Calculator className="h-12 w-12 text-primary mx-auto" />
-                <h3 className="font-semibold">Simulador de Custos</h3>
-                <p className="text-sm text-muted-foreground">
-                  Simule diferentes cenários e calcule o impacto financeiro de defeitos em projetos
-                  específicos.
-                </p>
-              </div>
-
-              <div className="text-center space-y-3">
-                <BarChart3 className="h-12 w-12 text-primary mx-auto" />
-                <h3 className="font-semibold">Dashboard Executivo</h3>
-                <p className="text-sm text-muted-foreground">
-                  Visualize métricas consolidadas e tendências através de gráficos e indicadores
-                  executivos.
-                </p>
-              </div>
-
-              <div className="text-center space-y-3">
-                <Shield className="h-12 w-12 text-primary mx-auto" />
-                <h3 className="font-semibold">Configurações</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure parâmetros personalizados para adequar os cálculos à realidade da sua
-                  organização.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Impact Section */}
-        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-center text-primary">Impacto Esperado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center space-y-4">
-              <p className="text-lg text-muted-foreground">
-                Com esta ferramenta, esperamos capacitar as equipes de gestão a:
-              </p>
-              <div className="grid md:grid-cols-2 gap-4 mt-6">
-                <div className="p-4 bg-background rounded-lg border">
-                  <h4 className="font-semibold mb-2">Tomar Decisões Baseadas em Dados</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Utilizar métricas concretas para justificar investimentos em qualidade e
-                    priorizar iniciativas de melhoria.
-                  </p>
+              <div className="md:col-span-2 space-y-4">
+                <div className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-[#3b82f6]" />
+                  <p className="font-semibold">Contribuições abertas</p>
                 </div>
-                <div className="p-4 bg-background rounded-lg border">
-                  <h4 className="font-semibold mb-2">Otimizar Recursos</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Identificar onde investir em prevenção para maximizar o retorno e minimizar
-                    custos de correção.
-                  </p>
+                <p className="text-sm text-muted-foreground">
+                  Este é um projeto <strong className="text-foreground">InnerSource</strong> da Softplan.
+                  Contribuições da comunidade interna são bem-vindas para tornar esta ferramenta ainda mais completa.
+                </p>
+                <div className="text-sm text-muted-foreground space-y-1.5">
+                  {['Clone o repositório', 'Crie uma branch para sua contribuição', 'Implemente melhorias ou correções', 'Abra um Merge Request'].map((s, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-muted-foreground/50 w-4">{i + 1}.</span>
+                      {s}
+                    </div>
+                  ))}
+                </div>
+                <a
+                  href="https://gitlab.com/softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs font-mono text-[#3b82f6] hover:text-[#3b82f6]/80 transition-colors border border-[#3b82f6]/30 rounded px-3 py-1.5"
+                >
+                  <GitBranch className="h-3 w-3" />
+                  ABRIR NO GITLAB
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+              <div className="space-y-3">
+                <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.15em] uppercase">Trusted Committers</p>
+                {['Flávia Cristina da Costa', 'Humberto Zilio'].map((name) => (
+                  <div key={name} className="flex items-center gap-2 text-sm">
+                    <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
+                    <span className="text-foreground">{name}</span>
+                  </div>
+                ))}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold">Time de Qualidade</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Vertical de Procuradorias · Softplan</p>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* InnerSource Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <GitBranch className="h-6 w-6 text-blue-600" />
-              <CardTitle className="text-blue-700 dark:text-blue-300">
-                Projeto InnerSource
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              Este é um projeto <strong>InnerSource</strong> da Softplan que aceita contribuições da
-              comunidade interna. Sua participação é bem-vinda para tornar esta ferramenta ainda
-              melhor!
-            </p>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold mb-2 text-blue-700 dark:text-blue-300">
-                  Como Contribuir
-                </h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Clone o repositório diretamente</li>
-                  <li>• Crie uma branch para sua contribuição</li>
-                  <li>• Implemente melhorias ou correções</li>
-                  <li>• Abra um Merge Request</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold mb-2 text-blue-700 dark:text-blue-300">
-                  Trusted Committers
-                </h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Flávia Cristina da Costa</li>
-                  <li>• Humberto Zilio</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center pt-4">
-              <a
-                href="https://gitlab.com/softplan/justica/procuradorias/arquitetura-de-software/tools/portal-custo-defeito"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
-                <GitBranch className="h-4 w-4" />
-                Contribuir no GitLab
-                <ExternalLink className="h-4 w-4" />
-              </a>
             </div>
           </CardContent>
         </Card>
       </div>
+
     </div>
   );
 }

@@ -249,10 +249,14 @@ export default function Configuration() {
 
   return (
     <div className="space-y-8">
-      {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Configurações do Sistema</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Administração · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Configurações do <span style={{ color: '#64748b' }}>Sistema</span>
+        </h1>
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
           Configure os parâmetros base para cálculo dos custos de defeitos
         </p>
       </div>

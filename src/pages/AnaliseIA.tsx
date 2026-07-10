@@ -238,14 +238,15 @@ export default function AnaliseIA() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      {/* Header */}
+    <div className="space-y-8 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Brain className="h-6 w-6 text-primary" />
-          Análise de Defeito com IA
+        <p className="text-[11px] font-mono text-muted-foreground/60 tracking-[0.2em] uppercase mb-3">
+          Inteligência Artificial · Vertical Procuradorias
+        </p>
+        <h1 className="text-4xl font-bold text-foreground">
+          Análise de Defeito com <span style={{ color: '#ec4899' }}>IA</span>
         </h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-2 max-w-xl">
           Informe o número de um card RTC para obter análise de causa raiz, sugestão de testes e checklist de code review gerados pela IA.
         </p>
       </div>
