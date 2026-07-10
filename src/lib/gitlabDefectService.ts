@@ -22,26 +22,50 @@ async function glFetch(path: string, token: string): Promise<Response> {
   });
 }
 
+type GLMr = { iid: number; title: string; web_url: string; merged_at: string; source_branch: string };
+
+function toMRInfo(m: GLMr): MRInfo {
+  return { iid: m.iid, title: m.title, webUrl: m.web_url, mergedAt: m.merged_at, changedFiles: [], diffsContext: '' };
+}
+
 export async function findMRForDefect(cardId: string, token: string): Promise<MRInfo | null> {
-  const resp = await glFetch(
+  // Estratégia 1 — busca por título (D839568 no título do MR)
+  const byTitle = await glFetch(
     `/api/v4/projects/${GITLAB_PROJECT}/merge_requests?search=D${cardId}&state=merged&per_page=20&order_by=updated_at`,
     token,
   );
-  if (!resp.ok) return null;
+  if (byTitle.ok) {
+    const mrs = (await byTitle.json()) as GLMr[];
+    const RE = new RegExp(`D0*${cardId}[\\s\\-–:./]`, 'i');
+    const matched = mrs.find(m => RE.test(m.title) || RE.test(m.source_branch))
+      ?? mrs.find(m => m.title.includes(`D${cardId}`) || m.source_branch.includes(`D${cardId}`));
+    if (matched) return toMRInfo(matched);
+  }
 
-  const mrs = (await resp.json()) as Array<{ iid: number; title: string; web_url: string; merged_at: string }>;
-  const RE = new RegExp(`D0*${cardId}[\\s\\-–:.]`, 'i');
-  const matched = mrs.find(m => RE.test(m.title)) ?? mrs.find(m => m.title.includes(`D${cardId}`));
-  if (!matched) return null;
+  // Estratégia 2 — busca por nome de branch (hotfix/D839568, fix/D839568, bugfix/D839568, etc.)
+  const branchPrefixes = ['hotfix', 'fix', 'bugfix', 'feature', 'feat'];
+  for (const prefix of branchPrefixes) {
+    const byBranch = await glFetch(
+      `/api/v4/projects/${GITLAB_PROJECT}/merge_requests?source_branch=${encodeURIComponent(`${prefix}/D${cardId}`)}&state=merged&per_page=5`,
+      token,
+    );
+    if (byBranch.ok) {
+      const mrs = (await byBranch.json()) as GLMr[];
+      if (mrs.length > 0) return toMRInfo(mrs[0]);
+    }
+  }
 
-  return {
-    iid: matched.iid,
-    title: matched.title,
-    webUrl: matched.web_url,
-    mergedAt: matched.merged_at,
-    changedFiles: [],
-    diffsContext: '',
-  };
+  // Estratégia 3 — branch sem prefixo (D839568 direto)
+  const byBranchDirect = await glFetch(
+    `/api/v4/projects/${GITLAB_PROJECT}/merge_requests?source_branch=${encodeURIComponent(`D${cardId}`)}&state=merged&per_page=5`,
+    token,
+  );
+  if (byBranchDirect.ok) {
+    const mrs = (await byBranchDirect.json()) as GLMr[];
+    if (mrs.length > 0) return toMRInfo(mrs[0]);
+  }
+
+  return null;
 }
 
 export async function getMRChanges(mrIid: number, token: string): Promise<{ changedFiles: string[]; diffsContext: string }> {
